@@ -6,6 +6,7 @@ import { CartService } from './cart.service';
 import { environment } from '../../environments/environment';
 
 export interface User {
+  id?: number;           // ← AGREGADO
   idUsuario?: number;
   name?: string;
   username?: string;
@@ -38,18 +39,31 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
+  // ← AGREGAR ESTE GETTER
+  get currentUser(): User | null {
+    return this.authState.value.user;
+  }
+
   get isAdmin(): boolean {
     const user = this.authState.value.user;
     return !!(user?.authorities?.includes('ADMIN') || user?.authorities?.includes('ROLE_ADMIN'));
   }
 
-  get isLoggedIn(): boolean { return this.authState.value.isLoggedIn; }
+  get isLoggedIn(): boolean {
+    return this.authState.value.isLoggedIn;
+  }
 
-  getUserData(): User | null { return this.authState.value.user; }
+  getUserData(): User | null {
+    return this.authState.value.user;
+  }
 
-  getToken(): string | null { return localStorage.getItem(this.TOKEN_KEY); }
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
 
-  setRedirectUrl(url: string): void { this.redirectUrl = url; }
+  setRedirectUrl(url: string): void {
+    this.redirectUrl = url;
+  }
 
   getAndClearRedirectUrl(): string | null {
     const url = this.redirectUrl;
@@ -58,13 +72,13 @@ export class AuthService {
   }
 
   login(credentials: { email: string; password: string }): Observable<any> {
-    const body = new URLSearchParams();
-    body.set('email', credentials.email);
-    body.set('password', credentials.password);
-    const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
-
-    return this.http.post<any>(`${this.apiUrl}/login`, body.toString(), { headers }).pipe(
+    return this.http.post<any>(
+      `${this.apiUrl}/login`,
+      { email: credentials.email, password: credentials.password },
+      { headers }
+    ).pipe(
       tap(res => {
         if (res.token) {
           const user = this.decodeToken(res.token);
@@ -90,13 +104,17 @@ export class AuthService {
   private decodeToken(token: string): User {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log('🔍 JWT Payload:', payload); // ← DEBUG
+
       return {
-        idUsuario: payload.idUsuario,
-        name: payload.nombre,
-        email: payload.sub,
-        authorities: payload.roles || []
+        id: payload.idUsuario || payload.sub || payload.id,           // ← AGREGADO
+        idUsuario: payload.idUsuario || payload.sub,
+        name: payload.nombre || payload.name || payload.username,
+        email: payload.sub || payload.email,
+        authorities: payload.roles || payload.authorities || []
       };
     } catch (e) {
+      console.error('❌ Error decodificando token:', e);
       return { email: '', authorities: [] };
     }
   }

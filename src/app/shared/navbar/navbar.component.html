@@ -31,6 +31,11 @@
             <i class="bi bi-box-seam"></i> Mis Pedidos
           </a>
         </li>
+        <li class="nav-item" *ngIf="authService.isLoggedIn">
+          <a routerLink="/direcciones" class="nav-link" routerLinkActive="active">
+            <i class="bi bi-geo-alt"></i> Mis Direcciones
+          </a>
+        </li>
       </ul>
 
       <div class="d-flex align-items-center">

@@ -14,6 +14,7 @@ import { AdminStockComponent } from './admin/admin-stock/admin-stock.component';
 import { adminGuard } from './guards/admin-guard';
 import { AdminOrders } from './admin/admin-orders/admin-orders';
 import { InfoComponent } from './shared/info/info.component';
+import { DireccionesComponent } from './components/direcciones/direcciones.component';
 
 
 export const routes: Routes = [
@@ -32,5 +33,6 @@ export const routes: Routes = [
   { path: 'ayuda', component: InfoComponent },
   { path: 'terminos', component: InfoComponent },
   { path: 'devoluciones', component: InfoComponent },
+  { path: 'direcciones', component: DireccionesComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];

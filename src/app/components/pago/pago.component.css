@@ -1,0 +1,126 @@
+/* Contenedor de métodos de pago */
+.payment-methods-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Tarjeta de método de pago */
+.payment-card {
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fff;
+  position: relative;
+}
+
+.payment-card:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+  transform: translateY(-2px);
+}
+
+.payment-card.active {
+  border-color: #0d6efd;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e7f0ff 100%);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+}
+
+.payment-card .form-check-input {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+/* Animación de entrada */
+.animate-fade {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card principal */
+.card {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.card-header {
+  border-bottom: none;
+}
+
+/* Botones */
+.btn-success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.btn-success:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Inputs */
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Pantalla de éxito */
+.success-icon {
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.rounded-4 {
+  border-radius: 20px;
+}
+
+/* Spinner */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.2em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1.5rem !important;
+  }
+
+  .success-icon i {
+    font-size: 4rem !important;
+  }
+}

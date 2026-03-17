@@ -15,7 +15,7 @@ FROM nginx:stable-alpine
 COPY --from=build /app/dist/techshop-frontend/browser /usr/share/nginx/html
 
 # Opcional: Copiar un archivo de configuración de Nginx si tienes uno para manejar rutas
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

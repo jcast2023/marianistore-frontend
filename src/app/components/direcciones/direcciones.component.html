@@ -1,0 +1,173 @@
+<app-navbar></app-navbar>
+
+<div class="container my-5">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <h2 class="text-center mb-4">
+        <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+        Mis Direcciones
+      </h2>
+
+      <!-- Formulario para agregar/editar dirección -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            {{ editando ? 'Editar Dirección' : 'Agregar Nueva Dirección' }}
+          </h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="formDireccion" (ngSubmit)="agregarOEditarDireccion()">
+
+            <!-- Calle y número -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Calle y número</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="calle"
+                placeholder="Av. Ejemplo 123">
+              <div *ngIf="formDireccion.get('calle')?.invalid && formDireccion.get('calle')?.touched"
+                   class="text-danger small">
+                La calle debe tener al menos 5 caracteres
+              </div>
+            </div>
+
+            <!-- Ciudad y Estado/Provincia -->
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Ciudad</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="ciudad"
+                  placeholder="Lima">
+                <div *ngIf="formDireccion.get('ciudad')?.invalid && formDireccion.get('ciudad')?.touched"
+                     class="text-danger small">
+                  La ciudad debe tener al menos 3 caracteres
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Estado / Provincia</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="estado"
+                  placeholder="Lima">
+                <div *ngIf="formDireccion.get('estado')?.invalid && formDireccion.get('estado')?.touched"
+                     class="text-danger small">
+                  El estado es requerido
+                </div>
+              </div>
+            </div>
+
+            <!-- Código Postal y País -->
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Código Postal</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="codigoPostal"
+                  placeholder="15001">
+                <div *ngIf="formDireccion.get('codigoPostal')?.invalid && formDireccion.get('codigoPostal')?.touched"
+                     class="text-danger small">
+                  El código postal es requerido
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">País</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="pais"
+                  placeholder="Perú">
+                <div *ngIf="formDireccion.get('pais')?.invalid && formDireccion.get('pais')?.touched"
+                     class="text-danger small">
+                  El país es requerido
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex gap-2">
+              <button
+                type="submit"
+                class="btn btn-primary flex-fill"
+                [disabled]="formDireccion.invalid">
+                <i class="bi bi-save me-2"></i>
+                {{ editando ? 'Actualizar Dirección' : 'Agregar Dirección' }}
+              </button>
+
+              <button
+                *ngIf="editando"
+                type="button"
+                class="btn btn-secondary"
+                (click)="cancelarEdicion()">
+                <i class="bi bi-x-circle me-2"></i>
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Lista de direcciones guardadas -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">Direcciones guardadas</h5>
+        </div>
+        <div class="card-body">
+
+          <!-- Loading -->
+          <div *ngIf="loading" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>
+
+          <!-- Sin direcciones -->
+          <div *ngIf="!loading && direcciones.length === 0" class="text-center py-4">
+            <i class="bi bi-inbox display-4 text-muted mb-3"></i>
+            <p class="text-muted">No tienes direcciones guardadas aún</p>
+          </div>
+
+          <!-- Lista de direcciones -->
+          <div *ngIf="!loading && direcciones.length > 0">
+            <div *ngFor="let dir of direcciones" class="border rounded p-3 mb-3">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="fw-bold mb-2">
+                    <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                    {{ dir.calle }}
+                  </h6>
+                  <p class="text-muted mb-1">
+                    <i class="bi bi-building me-2"></i>
+                    {{ dir.ciudad }}, {{ dir.estado }}
+                  </p>
+                  <p class="text-muted mb-0">
+                    <i class="bi bi-mailbox me-2"></i>
+                    {{ dir.pais }} - {{ dir.codigoPostal }}
+                  </p>
+                </div>
+
+                <div class="d-flex gap-2">
+                  <button
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="editarDireccion(dir)">
+                    <i class="bi bi-pencil"></i> Editar
+                  </button>
+                  <button
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="eliminarDireccion(dir.idDireccion!)">
+                    <i class="bi bi-trash"></i> Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

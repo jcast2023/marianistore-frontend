@@ -20,12 +20,17 @@
                   <small class="text-muted">{{m.description}}</small>
                 </div>
               </div>
-              <input type="radio" class="form-check-input" [checked]="metodoSeleccionado === m.id">
+              <input type="radio"
+                     class="form-check-input"
+                     [name]="'metodoPago'"
+                     [value]="m.id"
+                     [checked]="metodoSeleccionado === m.id">
             </div>
           </div>
 
           <form (ngSubmit)="confirmarPago()">
-            <div *ngIf="metodoSeleccionado === 'card'" class="animate-fade">
+            <!-- ← CAMBIAR 'card' por 'TARJETA_CREDITO' -->
+            <div *ngIf="metodoSeleccionado === 'TARJETA_CREDITO'" class="animate-fade">
               <div class="mb-3">
                 <label class="form-label">Número de Tarjeta</label>
                 <input type="text" name="cardNumber" class="form-control" placeholder="0000 0000 0000 0000" required>
@@ -42,6 +47,22 @@
               </div>
             </div>
 
+            <!-- ← AGREGAR: Mostrar info para PayPal -->
+            <div *ngIf="metodoSeleccionado === 'PAYPAL'" class="animate-fade">
+              <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                Serás redirigido a PayPal para completar tu pago de forma segura.
+              </div>
+            </div>
+
+            <!-- ← AGREGAR: Mostrar info para Transferencia -->
+            <div *ngIf="metodoSeleccionado === 'TRANSFERENCIA'" class="animate-fade">
+              <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                Recibirás los datos bancarios para realizar la transferencia.
+              </div>
+            </div>
+
             <button type="submit" class="btn btn-success w-100 btn-lg mt-3" [disabled]="procesando">
               <span *ngIf="procesando" class="spinner-border spinner-border-sm me-2"></span>
               {{ procesando ? 'Verificando...' : 'Pagar Ahora' }}
@@ -50,7 +71,10 @@
         </div>
       </div>
       <div class="text-center mt-3">
-        <small class="text-muted">ID de Pedido: {{ idPedido }}</small>
+        <small class="text-muted">
+          <i class="bi bi-shield-check text-success me-1"></i>
+          ID de Pedido: {{ idPedido }}
+        </small>
       </div>
     </div>
   </div>
@@ -72,10 +96,10 @@
           </button>
 
           <button class="btn btn-primary btn-lg" routerLink="/mis-pedidos">
-            Ver mis pedidos
+            <i class="bi bi-box-seam me-2"></i>Ver mis pedidos
           </button>
           <button class="btn btn-link" routerLink="/">
-            Volver al Inicio
+            <i class="bi bi-house me-2"></i>Volver al Inicio
           </button>
         </div>
       </div>

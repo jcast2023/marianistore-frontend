@@ -78,4 +78,22 @@
     margin-top: 10px;
     font-size: 0.9rem;
   }
+
+  .hover-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.badge {
+  font-size: 0.85rem;
+  padding: 0.4em 0.8em;
+}
+
+.text-muted {
+  font-size: 0.9rem;
+}
 }

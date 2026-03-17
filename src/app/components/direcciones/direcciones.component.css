@@ -1,0 +1,11 @@
+.card-header {
+  background-color: #0d6efd;
+}
+
+.form-label {
+  font-weight: 500;
+}
+
+.alert-dismissible .btn-close {
+  padding: 0.75rem 1.25rem;
+}

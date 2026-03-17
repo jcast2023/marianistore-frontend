@@ -1,23 +1,32 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PagoService {
-  private myAppUrl: string = environment.apiUrl;
-  private myApiUrl: string = '/pedidos';
+  private apiUrl = `${environment.apiUrl}/pagos`;
+  private pedidosUrl = `${environment.apiUrl}/pedidos`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  pagarPedido(id: number): Observable<any> {
-    return this.http.put(`${this.myAppUrl}${this.myApiUrl}/${id}/pagar`, {});
+  // ← ACTUALIZAR ESTE MÉTODO para recibir el método de pago
+  pagarPedido(idPedido: number, metodoPago?: string): Observable<any> {
+    // Construir URL con parámetros
+    let url = `${this.pedidosUrl}/${idPedido}/pagar`;
+
+    // Si se proporciona método de pago, agregarlo como parámetro
+    if (metodoPago) {
+      url += `?metodoPago=${metodoPago}`;
+    }
+
+    return this.http.put(url, {});
   }
 
-  descargarFactura(id: number): Observable<Blob> {
-    return this.http.get(`${this.myAppUrl}${this.myApiUrl}/${id}/factura`, {
+  descargarFactura(idPedido: number): Observable<Blob> {
+    return this.http.get(`${this.pedidosUrl}/${idPedido}/factura`, {
       responseType: 'blob'
     });
   }
