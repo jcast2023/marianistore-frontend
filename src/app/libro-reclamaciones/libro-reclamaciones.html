@@ -1,0 +1,173 @@
+<div class="reclamaciones-container my-5">
+  <div class="card shadow-lg border-0">
+
+    <div class="form-header d-flex align-items-center justify-content-between p-4 text-white">
+      <div class="header-title">
+        <h1 class="h3 mb-1 fw-bold">Libro de Reclamaciones</h1>
+        <p class="mb-0 small opacity-75">Hoja de Reclamación Virtual conforme a la Ley N° 29571</p>
+      </div>
+      <div class="indecopi-badge d-flex align-items-center gap-2 bg-white text-dark px-3 py-2 rounded shadow-sm">
+        <i class="fa-solid fa-book-open text-danger fs-3"></i>
+        <div class="d-flex flex-column text-start">
+          <span class="fw-bold lh-1 font-poppins text-dark" style="font-size: 0.85rem;">Libro de Reclamaciones</span>
+          <span class="text-muted fw-semibold uppercase tracking-wider" style="font-size: 0.65rem;">Virtual</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body p-4 p-md-5">
+
+      <div class="company-alert p-3 mb-4 rounded border-start border-4">
+        <p class="mb-2 text-dark"><strong>MarianíStore</strong> | Portal de comercio electrónico operado formalmente:</p>
+        <div class="row g-2 text-muted small">
+          <div class="col-sm-4"><strong>Razón Social:</strong> Meyten S.A.C.</div>
+          <div class="col-sm-4"><strong>RUC:</strong> 20602863116</div>
+          <div class="col-sm-4"><strong>Dirección:</strong> Jr. Ucayali 768, Lima</div>
+        </div>
+      </div>
+
+      <form [formGroup]="reclamoForm" (ngSubmit)="enviarReclamo()">
+
+        <h3 class="section-divider-title mb-4">1. Identificación del Consumidor Reclamante</h3>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">Nombres <span class="text-danger">*</span></label>
+            <input type="text" formControlName="nombres" class="form-control" placeholder="Tus nombres"
+                   [ngClass]="{'is-invalid': reclamoForm.get('nombres')?.touched && reclamoForm.get('nombres')?.invalid}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">Apellidos <span class="text-danger">*</span></label>
+            <input type="text" formControlName="apellidos" class="form-control" placeholder="Tus apellidos"
+                   [ngClass]="{'is-invalid': reclamoForm.get('apellidos')?.touched && reclamoForm.get('apellidos')?.invalid}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold text-secondary">Tipo de Documento <span class="text-danger">*</span></label>
+            <select formControlName="tipoDocumento" class="form-select"
+                    [ngClass]="{'is-invalid': reclamoForm.get('tipoDocumento')?.touched && reclamoForm.get('tipoDocumento')?.invalid}">
+              <option value="">Seleccione...</option>
+              <option value="DNI">DNI</option>
+              <option value="CE">Carnet de Extranjería</option>
+              <option value="Pasaporte">Pasaporte</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold text-secondary">Número de Documento <span class="text-danger">*</span></label>
+            <input type="text" formControlName="numDocumento" class="form-control" placeholder="Número"
+                   [ngClass]="{'is-invalid': reclamoForm.get('numDocumento')?.touched && reclamoForm.get('numDocumento')?.invalid}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold text-secondary">¿Es menor de edad? <span class="text-danger">*</span></label>
+            <div class="d-flex gap-3 align-items-center form-control border-0 px-0">
+              <label class="d-flex align-items-center gap-1 cursor-pointer">
+                <input type="radio" formControlName="esMenor" value="Si" class="form-check-input mt-0"> Sí
+              </label>
+              <label class="d-flex align-items-center gap-1 cursor-pointer">
+                <input type="radio" formControlName="esMenor" value="No" class="form-check-input mt-0"> No
+              </label>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold text-secondary">Dirección Domiciliaria <span class="text-danger">*</span></label>
+            <input type="text" formControlName="direccion" class="form-control" placeholder="Av, Calle, Jirón, N° de departamento u oficina"
+                   [ngClass]="{'is-invalid': reclamoForm.get('direccion')?.touched && reclamoForm.get('direccion')?.invalid}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold text-secondary">Departamento <span class="text-danger">*</span></label>
+            <input type="text" formControlName="departamento" class="form-control" readonly>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold text-secondary">Provincia <span class="text-danger">*</span></label>
+            <input type="text" formControlName="provincia" class="form-control" readonly>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold text-secondary">Distrito <span class="text-danger">*</span></label>
+            <input type="text" formControlName="distrito" class="form-control" placeholder="Distrito de residencia"
+                   [ngClass]="{'is-invalid': reclamoForm.get('distrito')?.touched && reclamoForm.get('distrito')?.invalid}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">Correo Electrónico <span class="text-danger">*</span></label>
+            <input type="email" formControlName="email" class="form-control" placeholder="ejemplo@correo.com"
+                   [ngClass]="{'is-invalid': reclamoForm.get('email')?.touched && reclamoForm.get('email')?.invalid}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold text-secondary">Teléfono / Celular</label>
+            <input type="text" formControlName="telefono" class="form-control" placeholder="Número de contacto">
+          </div>
+        </div>
+
+        <h3 class="section-divider-title mb-4">2. Identificación del Bien Contratado</h3>
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold text-secondary">Tipo de Bien <span class="text-danger">*</span></label>
+            <div class="d-flex gap-3 align-items-center form-control border-0 px-0">
+              <label class="d-flex align-items-center gap-1 cursor-pointer">
+                <input type="radio" formControlName="tipoBien" value="Producto" class="form-check-input mt-0"> Producto
+              </label>
+              <label class="d-flex align-items-center gap-1 cursor-pointer">
+                <input type="radio" formControlName="tipoBien" value="Servicio" class="form-check-input mt-0"> Servicio
+              </label>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold text-secondary">Monto Reclamado (S/.) <span class="text-danger">*</span></label>
+            <input type="number" formControlName="montoReclamado" class="form-control" placeholder="0.00" step="0.01"
+                   [ngClass]="{'is-invalid': reclamoForm.get('montoReclamado')?.touched && reclamoForm.get('montoReclamado')?.invalid}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold text-secondary">Código / N° de Pedido <span class="text-danger">*</span></label>
+            <input type="text" formControlName="pedido" class="form-control" placeholder="Ej: #12945"
+                   [ngClass]="{'is-invalid': reclamoForm.get('pedido')?.touched && reclamoForm.get('pedido')?.invalid}">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold text-secondary">Descripción del Producto o Servicio <span class="text-danger">*</span></label>
+            <textarea formControlName="descripcion" class="form-control" rows="2" placeholder="Indique qué artículo o servicio adquirió..."
+                      [ngClass]="{'is-invalid': reclamoForm.get('descripcion')?.touched && reclamoForm.get('descripcion')?.invalid}"></textarea>
+          </div>
+        </div>
+
+        <h3 class="section-divider-title mb-4">3. Detalle de la Reclamación</h3>
+        <div class="row g-3 mb-4">
+          <div class="col-12">
+            <label class="form-label fw-semibold text-secondary">Tipo de Disconformidad <span class="text-danger">*</span></label>
+            <div class="d-flex flex-column gap-2">
+              <label class="d-flex align-items-center gap-2 cursor-pointer small">
+                <input type="radio" formControlName="quejaReclamo" value="Reclamo" class="form-check-input mt-0">
+                <span><strong>Reclamo:</strong> Disconformidad relacionada directamente a los productos o servicios adquiridos.</span>
+              </label>
+              <label class="d-flex align-items-center gap-2 cursor-pointer small">
+                <input type="radio" formControlName="quejaReclamo" value="Queja" class="form-check-input mt-0">
+                <span><strong>Queja:</strong> Descontento respecto al trato, mala atención o procesos administrativos.</span>
+              </label>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold text-secondary">Detalle de los Hechos <span class="text-danger">*</span></label>
+            <textarea formControlName="detalle" class="form-control" rows="4" placeholder="Explique cronológicamente lo sucedido..."
+                      [ngClass]="{'is-invalid': reclamoForm.get('detalle')?.touched && reclamoForm.get('detalle')?.invalid}"></textarea>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label fw-semibold text-secondary">Pedido Concreto del Consumidor <span class="text-danger">*</span></label>
+            <textarea formControlName="pedidoConsumidor" class="form-control" rows="3" placeholder="¿Qué solución o compensación solicita?"
+                      [ngClass]="{'is-invalid': reclamoForm.get('pedidoConsumidor')?.touched && reclamoForm.get('pedidoConsumidor')?.invalid}"></textarea>
+          </div>
+        </div>
+
+        <div class="legal-infobox p-3 my-4 rounded text-justify">
+          <p class="mb-0 text-muted lh-sm">
+            <small>
+              * El proveedor debe responder a la hoja de reclamaciones en un término improrrogable de quince (15) días hábiles.<br>
+              * La formulación del reclamo mediante este canal virtual no invalida ni bloquea el derecho de recurrir directamente ante los tribunales arbitrales o de fiscalización del INDECOPI.
+            </small>
+          </p>
+        </div>
+
+        <div class="d-flex justify-content-end gap-3 align-items-center pt-3 border-top">
+          <a [routerLink]="['/']" class="btn btn-outline-secondary px-4 fw-semibold">Cancelar</a>
+          <button type="submit" class="btn btn-submit text-white px-5 fw-bold shadow-sm">Enviar Reclamación</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

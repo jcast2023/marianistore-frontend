@@ -1,108 +1,50 @@
-<div class="container mt-5" *ngIf="!pagoExitoso">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card shadow-lg border-0">
-        <div class="card-header bg-dark text-white py-3">
-          <h4 class="mb-0 text-center">Pasarela de Pago Segura</h4>
-        </div>
-        <div class="card-body p-4">
+@if (metodoSeleccionado === 'TARJETA_CREDITO') {
+  <div class="card-form animate-fadeInUp">
+    <h5 class="form-section-title">Pago con Tarjeta de Crédito/Débito</h5>
 
-          <label class="fw-bold mb-3">Selecciona tu método:</label>
-          <div class="payment-methods-container mb-4">
-            <div *ngFor="let m of metodos"
-                 class="payment-card"
-                 [class.active]="metodoSeleccionado === m.id"
-                 (click)="metodoSeleccionado = m.id">
-              <div class="d-flex align-items-center gap-3">
-                <i [class]="m.icon" class="fs-3 text-primary"></i>
-                <div>
-                  <div class="fw-bold">{{m.name}}</div>
-                  <small class="text-muted">{{m.description}}</small>
-                </div>
-              </div>
-              <input type="radio"
-                     class="form-check-input"
-                     [name]="'metodoPago'"
-                     [value]="m.id"
-                     [checked]="metodoSeleccionado === m.id">
-            </div>
-          </div>
+    <div class="p-4 mb-3 border rounded bg-white shadow-sm">
 
-          <form (ngSubmit)="confirmarPago()">
-            <!-- ← CAMBIAR 'card' por 'TARJETA_CREDITO' -->
-            <div *ngIf="metodoSeleccionado === 'TARJETA_CREDITO'" class="animate-fade">
-              <div class="mb-3">
-                <label class="form-label">Número de Tarjeta</label>
-                <input type="text" name="cardNumber" class="form-control" placeholder="0000 0000 0000 0000" required>
-              </div>
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Expiración</label>
-                  <input type="text" name="expiry" class="form-control" placeholder="MM/YY" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">CVV</label>
-                  <input type="password" name="cvv" class="form-control" placeholder="***" required>
-                </div>
-              </div>
-            </div>
-
-            <!-- ← AGREGAR: Mostrar info para PayPal -->
-            <div *ngIf="metodoSeleccionado === 'PAYPAL'" class="animate-fade">
-              <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                Serás redirigido a PayPal para completar tu pago de forma segura.
-              </div>
-            </div>
-
-            <!-- ← AGREGAR: Mostrar info para Transferencia -->
-            <div *ngIf="metodoSeleccionado === 'TRANSFERENCIA'" class="animate-fade">
-              <div class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                Recibirás los datos bancarios para realizar la transferencia.
-              </div>
-            </div>
-
-            <button type="submit" class="btn btn-success w-100 btn-lg mt-3" [disabled]="procesando">
-              <span *ngIf="procesando" class="spinner-border spinner-border-sm me-2"></span>
-              {{ procesando ? 'Verificando...' : 'Pagar Ahora' }}
-            </button>
-          </form>
-        </div>
+      <!-- Logo y título -->
+      <div class="text-center mb-3">
+        <img src="assets/mercadopago-logo.png"
+             alt="Mercado Pago" style="max-height: 60px; object-fit: contain;">
+        <h6 class="fw-bold text-dark mt-2">Pasarela Certificada por Mercado Pago</h6>
+        <p class="text-muted small">Serás redirigido al checkout seguro de Mercado Pago</p>
       </div>
-      <div class="text-center mt-3">
-        <small class="text-muted">
-          <i class="bi bi-shield-check text-success me-1"></i>
-          ID de Pedido: {{ idPedido }}
-        </small>
+
+      <hr>
+
+      <!-- Métodos aceptados -->
+      <p class="text-center text-muted small fw-bold mb-2">MÉTODOS DE PAGO ACEPTADOS</p>
+      <div class="d-flex justify-content-center gap-3 mb-3">
+        <img src="assets/visa-logo.png" alt="Visa" style="height:28px;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
+             alt="Mastercard" style="height:28px;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo.svg"
+             alt="Amex" style="height:28px;">
+        <img src="assets/yape-logo.png" alt="Visa" style="height:28px;">
+      </div>
+
+      <hr>
+
+      <!-- Seguridad -->
+      <div class="d-flex justify-content-center gap-4 text-muted small mt-2">
+        <span><i class="bi bi-shield-lock-fill text-success me-1"></i>Pago 100% seguro</span>
+        <span><i class="bi bi-lock-fill text-success me-1"></i>Encriptación SSL</span>
+        <span><i class="bi bi-patch-check-fill text-success me-1"></i>Datos protegidos</span>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="container mt-5" *ngIf="pagoExitoso">
-  <div class="row justify-content-center">
-    <div class="col-md-6 text-center">
-      <div class="card shadow-lg p-5 border-0 rounded-4">
-        <div class="success-icon mb-4">
-          <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
-        </div>
-        <h2 class="fw-bold text-dark">¡Pago Completado!</h2>
-        <p class="text-muted">Hemos recibido tu pago para el pedido #{{idPedido}}.</p>
-
-        <div class="d-grid gap-2 mt-4">
-          <button class="btn btn-outline-danger btn-lg mb-2" (click)="bajarFactura()">
-            <i class="bi bi-file-earmark-pdf me-2"></i>Descargar Factura PDF
-          </button>
-
-          <button class="btn btn-primary btn-lg" routerLink="/mis-pedidos">
-            <i class="bi bi-box-seam me-2"></i>Ver mis pedidos
-          </button>
-          <button class="btn btn-link" routerLink="/">
-            <i class="bi bi-house me-2"></i>Volver al Inicio
-          </button>
-        </div>
-      </div>
+    <div class="text-center mt-4">
+      <button class="btn-pay" [disabled]="procesando" (click)="confirmarPago()">
+        @if (!procesando) {
+          <span><i class="bi bi-lock-fill me-2"></i>Pagar Ahora S/ {{ totalPedido | number:'1.2-2' }}</span>
+        } @else {
+          <div class="spinner-border spinner-border-sm text-light" role="status"></div>
+          <span class="ms-2">Redirigiendo...</span>
+        }
+      </button>
     </div>
+
   </div>
-</div>
+}

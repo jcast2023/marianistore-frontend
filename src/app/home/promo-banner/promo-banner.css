@@ -1,0 +1,72 @@
+.promo-banner-container {
+  width: 100%;
+  height: 36px;
+  overflow: hidden;
+  background: #1a1a2e;
+  position: relative;
+  z-index: 10;
+}
+
+/* Cinta que se mueve de derecha a izquierda sin parar */
+.promo-track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+.promo-track:hover {
+  animation-play-state: paused; /* Se detiene al pasar el mouse */
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); } /* -50% porque duplicamos el contenido */
+}
+
+/* Cada item del ticker */
+.promo-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 2.5rem;
+  height: 100%;
+  white-space: nowrap;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.3px;
+}
+
+.promo-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.promo-title {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.promo-subtitle {
+  font-weight: 400;
+  opacity: 0.85;
+  margin-left: 0.3rem;
+}
+
+/* Separador entre items */
+.promo-separator {
+  color: rgba(255,255,255,0.3);
+  font-size: 1rem;
+  padding: 0 0.5rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 576px) {
+  .promo-banner-container { height: 30px; }
+  .promo-item { font-size: 0.75rem; padding: 0 1.5rem; }
+  .promo-track { animation-duration: 18s; }
+}

@@ -1,0 +1,77 @@
+<div class="container my-5" style="max-width: 800px;">
+  <div class="card shadow border-0">
+    <div class="card-header bg-dark text-white p-4">
+      <h2 class="h4 mb-1 fw-bold"><i class="fa-solid fa-magnifying-glass me-2"></i>Seguimiento de Reclamación</h2>
+      <p class="mb-0 small opacity-75">Consulte el estado en tiempo real de su hoja de reclamación virtual</p>
+    </div>
+
+    <div class="card-body p-4">
+      <div class="row g-2 justify-content-center mb-4">
+        <div class="col-md-8">
+          <input type="text" [(ngModel)]="codigoBusqueda" class="form-control form-control-lg text-uppercase"
+                 placeholder="Ej: REC-2026-DEC40" (keyup.enter)="buscarReclamo()">
+        </div>
+        <div class="col-md-4">
+          <button (click)="buscarReclamo()" class="btn btn-dark btn-lg w-100 fw-bold shadow-sm">Buscar Estado</button>
+        </div>
+      </div>
+
+      <hr class="my-4" *ngIf="buscado">
+
+      <div *ngIf="buscado && reclamoEncontrado" class="result-box">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 bg-light p-3 rounded">
+          <div>
+            <span class="text-muted small d-block">Código del Reclamo</span>
+            <strong class="fs-5 text-dark">{{ reclamoEncontrado.codigoReclamo }}</strong>
+          </div>
+          <div>
+            <span class="text-muted small d-block mb-1 text-md-end">Estado Actual</span>
+            <span class="badge px-3 py-2 fs-6 shadow-sm"
+                  [ngClass]="{
+                    'bg-warning text-dark': reclamoEncontrado.estado === 'PENDIENTE',
+                    'bg-info text-white': reclamoEncontrado.estado === 'EN_REVISION',
+                    'bg-success text-white': reclamoEncontrado.estado === 'RESUELTO'
+                  }">
+              {{ reclamoEncontrado.estado }}
+            </span>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <p class="mb-1 text-muted small">Consumidor:</p>
+            <p class="fw-semibold">{{ reclamoEncontrado.nombres }} {{ reclamoEncontrado.apellidos }}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-1 text-muted small">Fecha de Presentación:</p>
+            <p class="fw-semibold">{{ reclamoEncontrado.fechaRegistro | date:'dd/MM/yyyy, h:mm a' }}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-1 text-muted small">Tipo de Disconformidad:</p>
+            <p class="fw-semibold">{{ reclamoEncontrado.quejaReclamo }}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-1 text-muted small">Bien Contratado:</p>
+            <p class="fw-semibold">{{ reclamoEncontrado.tipoBien }} (Pedido: {{ reclamoEncontrado.pedido }})</p>
+          </div>
+          <div class="col-12">
+            <p class="mb-1 text-muted small">Detalle del Hecho Registrado:</p>
+            <div class="bg-light p-3 rounded text-secondary small text-justify" style="max-height: 150px; overflow-y: auto;">
+              {{ reclamoEncontrado.detalle }}
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-light border border-4 border-start border-dark mt-4 mb-0">
+          <h5 class="alert-heading h6 fw-bold text-dark"><i class="fa-solid fa-circle-info me-2"></i>Plazo de Respuesta Legal</h5>
+          <p class="mb-0 small text-muted">Recuerde que contamos con un plazo de hasta 15 días hábiles para dar una resolución final. Se le notificará a su correo (<strong>{{ reclamoEncontrado.email }}</strong>) cualquier actualización.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer bg-light p-3 d-flex justify-content-between align-items-center">
+      <a [routerLink]="['/']" class="btn btn-outline-dark btn-sm fw-semibold"><i class="fa-solid fa-arrow-left me-1"></i> Volver a la Tienda</a>
+      <span class="text-muted small">MarianíStore 2026</span>
+    </div>
+  </div>
+</div>

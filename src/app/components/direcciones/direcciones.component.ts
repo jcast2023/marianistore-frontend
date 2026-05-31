@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { NavbarComponent } from '../../shared/navbar/navbar.component';
+import { Location } from '@angular/common'; // Pasarela nativa para manejar historial
 import Swal from 'sweetalert2';
 
 interface Direccion {
@@ -19,7 +19,7 @@ interface Direccion {
 @Component({
   selector: 'app-direcciones',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './direcciones.component.html',
   styleUrls: ['./direcciones.component.css']
 })
@@ -35,7 +35,8 @@ export class DireccionesComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private location: Location
   ) {
     this.formDireccion = this.fb.group({
       calle: ['', [Validators.required, Validators.minLength(5)]],
@@ -52,7 +53,6 @@ export class DireccionesComponent implements OnInit {
 
   cargarDirecciones(): void {
     this.loading = true;
-
     const userId = this.authService.currentUser?.id || this.authService.currentUser?.idUsuario;
 
     if (!userId) {
@@ -93,15 +93,17 @@ export class DireccionesComponent implements OnInit {
     };
 
     if (this.editando && this.idDireccionEditando) {
-      // Actualizar
+      // ── Actualizar Dirección existente ──
       this.http.put(`${this.apiUrl}/${this.idDireccionEditando}`, direccionData).subscribe({
         next: () => {
           Swal.fire({
             title: '¡Actualizada!',
             text: 'La dirección ha sido actualizada correctamente',
             icon: 'success',
-            timer: 2000,
+            timer: 1500,
             showConfirmButton: false
+          }).then(() => {
+            this.location.back();
           });
           this.cargarDirecciones();
           this.cancelarEdicion();
@@ -112,15 +114,17 @@ export class DireccionesComponent implements OnInit {
         }
       });
     } else {
-      // Crear nueva
+      // ── Crear Nueva Dirección ──
       this.http.post(this.apiUrl, direccionData).subscribe({
         next: () => {
           Swal.fire({
             title: '¡Guardada!',
             text: 'La dirección ha sido agregada correctamente',
             icon: 'success',
-            timer: 2000,
+            timer: 1500,
             showConfirmButton: false
+          }).then(() => {
+            this.location.back();
           });
           this.cargarDirecciones();
           this.formDireccion.reset({ pais: 'Perú' });
@@ -143,7 +147,6 @@ export class DireccionesComponent implements OnInit {
       codigoPostal: direccion.codigoPostal,
       pais: direccion.pais
     });
-
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -172,15 +175,13 @@ export class DireccionesComponent implements OnInit {
           },
           error: (err) => {
             console.error('❌ Error al eliminar:', err);
-
             let titulo = 'No se puede eliminar';
             let mensaje = 'Ocurrió un error al intentar eliminar la dirección';
 
             if (err.status === 409) {
               titulo = 'Dirección en uso';
               mensaje = err.error?.message ||
-                       'No puedes eliminar esta dirección porque tienes pedidos asociados a ella. ' +
-                       'Los pedidos anteriores mantienen el registro de la dirección de envío.';
+                       'No puedes eliminar esta dirección porque tienes pedidos asociados a ella.';
             } else if (err.status === 404) {
               titulo = 'Dirección no encontrada';
               mensaje = 'La dirección no existe o ya fue eliminada';
@@ -188,12 +189,7 @@ export class DireccionesComponent implements OnInit {
 
             Swal.fire({
               title: titulo,
-              html: `
-                <p>${mensaje}</p>
-                <p class="text-muted small mt-3">
-                  <strong>💡 Sugerencia:</strong> Puedes crear una nueva dirección y usarla en futuros pedidos.
-                </p>
-              `,
+              html: `<p>${mensaje}</p>`,
               icon: 'error',
               confirmButtonText: 'Entendido',
               confirmButtonColor: '#3085d6'

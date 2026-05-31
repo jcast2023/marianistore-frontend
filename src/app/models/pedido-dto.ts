@@ -19,6 +19,6 @@ export interface PedidoDTO {
   total: number;
   estado: string;
   items: ItemPedidoDTO[];
-  direccionEnvio?: DireccionDTO;  // ← AGREGAR
-  idDireccionEnvio?: number;      // ← AGREGAR
+  direccionEnvio?: DireccionDTO;
+  idDireccionEnvio?: number;
 }

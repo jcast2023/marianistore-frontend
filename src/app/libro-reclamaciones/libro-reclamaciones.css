@@ -1,0 +1,109 @@
+/* ==========================================================================
+   ESTILOS COMPONENTE: LIBRO DE RECLAMACIONES (MARIANÍSTORE)
+   ========================================================================== */
+
+.reclamaciones-container {
+  max-width: 850px;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Cabecera del Formulario sincronizada con el color institucional */
+.form-header {
+  background-color: #03291c;
+  border-bottom: 4px solid #c53030;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+/* Badge de Indecopi flotante */
+.indecopi-badge {
+  min-width: 190px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Separadores de Sección */
+.section-divider-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #03291c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 6px;
+}
+
+/* Alerta informativa de Razón Social */
+.company-alert {
+  background-color: #f8fafc;
+  border-left-color: #03291c !important;
+}
+
+/* Inputs y Selectores Estilizados */
+.form-control, .form-select {
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  border-color: #cbd5e1;
+  color: #0f172a;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #03291c;
+  box-shadow: 0 0 0 3px rgba(3, 41, 28, 0.12);
+  outline: 0;
+}
+
+.form-control[readonly] {
+  background-color: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+/* Inputs de tipo radio personalizados */
+.form-check-input:checked {
+  background-color: #03291c;
+  border-color: #03291c;
+}
+
+/* Bloque Legal inferior */
+.legal-infobox {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  line-height: 1.4;
+}
+
+/* Botón de Envío */
+.btn-submit {
+  background-color: #03291c;
+  border: 1px solid #03291c;
+  padding: 0.7rem 2rem;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-submit:hover {
+  background-color: #05402c;
+  border-color: #05402c;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Adaptación para Pantallas Pequeñas */
+@media (max-width: 576px) {
+  .form-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .indecopi-badge {
+    width: 100%;
+    justify-content: center !important;
+  }
+}

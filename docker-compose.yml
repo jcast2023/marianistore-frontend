@@ -1,43 +1,65 @@
+version: '3.8'
+
 services:
-  # 1. LA BASE DE DATOS
-  db-mysql:
-    image: mysql:8.0-oracle
-    container_name: techshop-db
+  # 1. BASE DE DATOS MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: tiendaonline-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: techshop_db
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tiendaonline_db
+      MYSQL_USER: tiendaonline
+      MYSQL_PASSWORD: tiendaonline123
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - tiendaonline-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-utiendaonline", "-ptiendaonline123"]
+      timeout: 20s
+      retries: 10
 
-      - ./mysql_data:/var/lib/mysql
-      - ./init:/docker-entrypoint-initdb.d
-
-  # 2. EL BACKEND
-  backend-api:
+  # 2. BACKEND Spring Boot
+  backend:
     build: ../e-commerce
-    image: techshop-backend
-    container_name: techshop-api
-    depends_on:
-      - db-mysql
+    image: tiendaonline-backend
+    container_name: tiendaonline-backend
+    restart: always
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db-mysql:3306/techshop_db?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
-      DB_USERNAME: root
-      DB_PASSWORD: root
-    restart: on-failure
-
-  # 3. EL FRONTEND (Ya lo construiste en el disco C)
-  frontend-web:
-    build: .
-    image: techshop-frontend
-    container_name: techshop-web
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/tiendaonline_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: tiendaonline
+      SPRING_DATASOURCE_PASSWORD: tiendaonline123
+      JWT_SECRET: tiendaonline2024SecretKeyForJWTTokenGenerationInDocker
+      JWT_EXPIRATION: 86400000
     depends_on:
-      - backend-api
+      mysql:
+        condition: service_healthy
+    networks:
+      - tiendaonline-network
+
+  # 3. FRONTEND Angular
+  frontend:
+    build: .
+    image: tiendaonline-frontend
+    container_name: tiendaonline-frontend
+    restart: always
     ports:
-      - "81:80"
-    volumes:
-      # Formato: [Ruta en Windows]:[Ruta en el Contenedor]
-      - ./src/assets/productos:/usr/share/nginx/html/assets/productos
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - tiendaonline-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  tiendaonline-network:
+    driver: bridge

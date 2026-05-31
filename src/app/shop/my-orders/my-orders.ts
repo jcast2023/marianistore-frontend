@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ProductService } from '../../services/product.service';
-import { NavbarComponent } from '../../shared/navbar/navbar.component';
+import { CartService } from '../../services/cart.service';
+import { RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 
 interface DireccionDTO {
@@ -31,7 +33,7 @@ interface PedidoDTO {
   fechaPedido: string;
   total: number;
   estado: string;
-  metodoPago?: string; // ← AGREGAR
+  metodoPago?: string;
   items: ItemPedidoDTO[];
   direccionEnvio?: DireccionDTO;
   idDireccionEnvio?: number;
@@ -40,7 +42,7 @@ interface PedidoDTO {
 @Component({
   selector: 'app-my-orders',
   standalone: true,
-  imports: [CommonModule, NavbarComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './my-orders.html',
   styleUrl: './my-orders.css'
 })
@@ -50,38 +52,81 @@ export class MyOrders implements OnInit {
 
   constructor(
     private http: HttpClient,
+    private route: ActivatedRoute,
+    private cartService: CartService,
     private authService: AuthService,
     public productService: ProductService
   ) {}
 
   ngOnInit(): void {
+    this.verificarRetornoPago();
     this.cargarPedidos();
   }
 
-  cargarPedidos(): void {
-    this.cargando = true;
-    const user = this.authService.getUserData();
-    const userId = user?.idUsuario;
 
-    if (!userId) {
-      Swal.fire('Error', 'No se pudo identificar al usuario', 'error');
-      this.cargando = false;
-      return;
-    }
+  verificarRetornoPago(): void {
+    this.route.queryParams.subscribe(params => {
+      // 1. Capturamos los parámetros nativos que inyecta Mercado Pago
+      const mpStatus = params['collection_status'] || params['status'];
+      const pedidoId = params['external_reference'] || params['pedido'];
 
-    this.http.get<PedidoDTO[]>(`http://localhost:8080/api/pedidos/usuario/${userId}`).subscribe({
-      next: (data) => {
-        this.pedidos = data;
-        this.cargando = false;
-        console.log('Pedidos cargados:', this.pedidos);
-      },
-      error: (err) => {
-        console.error('Error al cargar pedidos:', err);
-        Swal.fire('Error', 'No se pudieron cargar los pedidos', 'error');
-        this.cargando = false;
+      // 2. Si existen parámetros de una transacción reciente
+      if (mpStatus && pedidoId) {
+
+        if (mpStatus === 'approved' || mpStatus === 'success') {
+          // Limpiamos el carrito de compras local inmediatamente
+          this.cartService.clearCart();
+
+          Swal.fire({
+            title: '¡Pago Exitoso!',
+            text: `Tu pago para el pedido #${pedidoId} fue procesado correctamente por Mercado Pago.`,
+            icon: 'success',
+            confirmButtonColor: '#198754'
+          });
+        } else if (mpStatus === 'rejected' || mpStatus === 'failure') {
+          Swal.fire({
+            title: 'Pago Rechazado',
+            text: `Hubo un problema al procesar el pago del pedido #${pedidoId}. Inténtalo de nuevo.`,
+            icon: 'error',
+            confirmButtonColor: '#dc3545'
+          });
+        }
+
+        // Opcional: Limpiar los parámetros de la URL para que no se repita el Swal si el usuario refresca la página
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
     });
   }
+
+  cargarPedidos(): void {
+  this.cargando = true;
+  const user = this.authService.getUserData();
+  const userId = user?.idUsuario;
+
+  if (!userId) {
+    Swal.fire('Error', 'No se pudo identificar al usuario', 'error');
+    this.cargando = false;
+    return;
+  }
+
+
+  const token = this.authService.getToken();
+  const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
+  //  Pasar las { headers } en la petición GET
+  this.http.get<PedidoDTO[]>(`http://localhost:8080/api/pedidos/usuario/${userId}`, { headers }).subscribe({
+    next: (data) => {
+      this.pedidos = data;
+      this.cargando = false;
+      console.log('Pedidos cargados:', this.pedidos);
+    },
+    error: (err) => {
+      console.error('Error al cargar pedidos:', err);
+      Swal.fire('Error', 'No se pudieron cargar los pedidos. Sesión expirada o inválida.', 'error');
+      this.cargando = false;
+    }
+  });
+}
 
   getEstadoBadgeClass(estado: string): string {
     const clases: any = {
@@ -95,7 +140,6 @@ export class MyOrders implements OnInit {
     return clases[estado] || 'bg-secondary';
   }
 
-  // ← AGREGAR MÉTODO PARA MÉTODO DE PAGO
   obtenerNombreMetodoPago(metodo: string): string {
     const nombres: any = {
       'TARJETA_CREDITO': 'Tarjeta de Crédito',
@@ -110,12 +154,11 @@ export class MyOrders implements OnInit {
       <tr>
         <td class="text-start">${item.nombreProducto || 'Producto'}</td>
         <td class="text-center">${item.cantidad}</td>
-        <td class="text-end">$${item.precioUnitario.toFixed(2)}</td>
-        <td class="text-end fw-bold">$${(item.cantidad * item.precioUnitario).toFixed(2)}</td>
+        <td class="text-end">S/ ${item.precioUnitario.toFixed(2)}</td>
+        <td class="text-end fw-bold">S/ ${(item.cantidad * item.precioUnitario).toFixed(2)}</td>
       </tr>
     `).join('');
 
-    // ← AGREGAR MÉTODO DE PAGO AL HTML
     const metodoPagoHTML = pedido.metodoPago ? `
       <div class="mb-3">
         <strong><i class="bi bi-credit-card text-primary me-2"></i>Método de pago:</strong>
@@ -170,7 +213,7 @@ export class MyOrders implements OnInit {
             <tfoot class="table-light">
               <tr>
                 <td colspan="3" class="text-end fw-bold">TOTAL:</td>
-                <td class="text-end fw-bold text-success fs-5">$${pedido.total.toFixed(2)}</td>
+                <td class="text-end fw-bold text-success fs-5">S/ ${pedido.total.toFixed(2)}</td>
               </tr>
             </tfoot>
           </table>
@@ -191,7 +234,6 @@ export class MyOrders implements OnInit {
     });
   }
 
-  // ← ACTUALIZAR ESTE MÉTODO (con autenticación)
   generarPDF(pedido: PedidoDTO): void {
     const token = localStorage.getItem('access_token');
 
@@ -235,45 +277,51 @@ export class MyOrders implements OnInit {
   }
 
   descargarFactura(idPedido: number): void {
-    Swal.fire({
-      title: 'Generando factura...',
-      text: 'Por favor espera',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
+  Swal.fire({
+    title: 'Generando factura...',
+    text: 'Por favor espera',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
 
-    this.http.get(`http://localhost:8080/api/pedidos/${idPedido}/factura`, {
-      responseType: 'blob'
-    }).subscribe({
-      next: (res: Blob) => {
-        const fileURL = URL.createObjectURL(res);
-        const link = document.createElement('a');
-        link.href = fileURL;
-        link.download = `factura_pedido_${idPedido}.pdf`;
-        link.click();
-        setTimeout(() => URL.revokeObjectURL(fileURL), 100);
+  //  OBTENER EL TOKEN E INYECTAR LAS CABECERAS
+  const token = this.authService.getToken();
+  const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-        Swal.fire({
-          title: '¡Factura descargada!',
-          text: `Factura del pedido #${idPedido} descargada exitosamente`,
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false
-        });
-      },
-      error: (err) => {
-        console.error('Error en descarga:', err);
-        Swal.fire({
-          title: 'Error al descargar',
-          text: 'No se pudo generar la factura. Verifica tu conexión o intenta más tarde.',
-          icon: 'error',
-          confirmButtonText: 'Entendido'
-        });
-      }
-    });
-  }
+  //  Pasar las { headers } junto al responseType
+  this.http.get(`http://localhost:8080/api/pedidos/${idPedido}/factura`, {
+    headers,
+    responseType: 'blob'
+  }).subscribe({
+    next: (res: Blob) => {
+      const fileURL = URL.createObjectURL(res);
+      const link = document.createElement('a');
+      link.href = fileURL;
+      link.download = `factura_pedido_${idPedido}.pdf`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(fileURL), 100);
+
+      Swal.fire({
+        title: '¡Factura descargada!',
+        text: `Factura del pedido #${idPedido} descargada exitosamente`,
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    },
+    error: (err) => {
+      console.error('Error en descarga:', err);
+      Swal.fire({
+        title: 'Error al descargar',
+        text: 'No se pudo generar la factura. Verifica tu sesión o intenta más tarde.',
+        icon: 'error',
+        confirmButtonText: 'Entendido'
+      });
+    }
+  });
+}
 
   calcularSubtotal(item: ItemPedidoDTO): number {
     return item.cantidad * item.precioUnitario;

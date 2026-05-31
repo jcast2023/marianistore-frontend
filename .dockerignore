@@ -1,0 +1,16 @@
+notepad .dockerignore
+```
+
+**Pega esto:**
+```
+node_modules/
+.angular/
+dist/
+mysql_data/
+init/
+.git/
+.env
+coverage/
+.vscode/
+.idea/
+*.log

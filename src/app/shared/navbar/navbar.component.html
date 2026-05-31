@@ -1,60 +1,69 @@
-<nav class="navbar navbar-expand-lg fixed-top custom-navbar">
-  <div class="container">
-    <a routerLink="/" class="navbar-brand fw-bold">
-      <span class="brand-tech">Tech</span>Shop
-    </a>
+<app-sidebar #sidebar></app-sidebar>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+<nav class="modern-navbar">
+  <div class="navbar-top">
+    <div class="container-fluid">
+      <div class="navbar-brand-section">
+        <button class="menu-btn" (click)="sidebar.toggleSidebar()">
+          <i class="bi bi-list"></i>
+          <span>Menú</span>
+        </button>
+        <a routerLink="/" class="navbar-brand">
+          <span class="brand-text">Marianí</span><span class="brand-accent">Store</span>
+        </a>
+      </div>
 
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav mx-auto">
-        <li class="nav-item">
-          <a routerLink="/" class="nav-link" routerLinkActive="active">Inicio</a>
-        </li>
-        <li class="nav-item" *ngIf="isAdmin">
-          <a class="nav-link admin-link" routerLink="/admin/dashboard" routerLinkActive="active">
-            <i class="bi bi-speedometer2"></i> Dashboard
-          </a>
-        </li>
-        <li class="nav-item">
-          <a routerLink="/productos" class="nav-link" routerLinkActive="active">Productos</a>
-        </li>
-        <li class="nav-item">
-          <a routerLink="/carrito" class="nav-link" routerLinkActive="active">
-            <i class="bi bi-cart3"></i> Carrito
-          </a>
-        </li>
-        <li class="nav-item" *ngIf="authService.isLoggedIn">
-          <a routerLink="/mis-pedidos" class="nav-link" routerLinkActive="active">
-            <i class="bi bi-box-seam"></i> Mis Pedidos
-          </a>
-        </li>
-        <li class="nav-item" *ngIf="authService.isLoggedIn">
-          <a routerLink="/direcciones" class="nav-link" routerLinkActive="active">
-            <i class="bi bi-geo-alt"></i> Mis Direcciones
-          </a>
-        </li>
-      </ul>
+      <div class="navbar-search">
+        <input
+          type="text"
+          placeholder="¿Qué buscas hoy?"
+          class="search-input"
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="search()">
+        <button class="search-btn" (click)="search()">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
 
-      <div class="d-flex align-items-center">
-        <ng-container *ngIf="authService.isLoggedIn; else guestButtons">
-          <span class="me-3 user-welcome d-none d-lg-inline">
-            Hola, <strong>{{ username }}</strong>
-          </span>
-          <button class="btn btn-logout" (click)="logout()">
-            <i class="bi bi-box-arrow-right"></i> Salir
+      <div class="navbar-actions">
+        <button (click)="cambiarTema()" class="btn-theme-toggle" [title]="(themeService.isDarkMode$ | async) ? 'Activar modo claro' : 'Activar modo oscuro'">
+          <span *ngIf="themeService.isDarkMode$ | async; else modoClaroIcon">🌙</span>
+          <ng-template #modoClaroIcon>☀️</ng-template>
+        </button>
+
+        <ng-container *ngIf="authService.isLoggedIn; else guestActions">
+          <span class="user-welcome">Hola, <strong>{{ username }}</strong></span>
+          <button class="btn-icon" (click)="logout()" title="Salir">
+            <i class="bi bi-box-arrow-right"></i>
           </button>
         </ng-container>
 
-        <ng-template #guestButtons>
-          <a routerLink="/login" class="btn btn-login me-2">Iniciar Sesión</a>
-          <a routerLink="/register" class="btn btn-register">Registrarme</a>
+        <ng-template #guestActions>
+          <a routerLink="/login" class="btn-login">Iniciar Sesión</a>
+          <a routerLink="/register" class="btn-register">Registrarme</a>
         </ng-template>
+
+        <a routerLink="/favoritos" class="btn-wishlist" title="Mis Favoritos">
+    <i class="bi bi-heart"></i>
+    <span class="wishlist-count" *ngIf="wishlistCount > 0">{{ wishlistCount }}</span>
+  </a>
+
+        <a routerLink="/carrito" class="btn-cart">
+          <i class="bi bi-cart3"></i>
+          <span class="cart-count" *ngIf="cartCount > 0">{{ cartCount }}</span>
+        </a>
       </div>
     </div>
   </div>
-</nav>
 
-<div class="nav-spacer"></div>
+  <div class="navbar-bottom">
+    <div class="container-fluid">
+      <ul class="nav-menu">
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Inicio</a></li>
+        <li><a routerLink="/productos" routerLinkActive="active">Productos</a></li>
+        <li *ngIf="authService.isLoggedIn"><a routerLink="/mis-pedidos" routerLinkActive="active">Mis Pedidos</a></li>
+        <li *ngIf="isAdmin"><a routerLink="/admin/dashboard" routerLinkActive="active">Dashboard</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>

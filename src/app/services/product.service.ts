@@ -16,6 +16,7 @@ export interface Product {
   precio: number;
   stock: number;
   imagen: string;
+  imagenHover?: string;
   categoria: Categoria;
 }
 
@@ -26,9 +27,7 @@ export class ProductService {
 
   private apiUrl = `${environment.apiUrl}/productos`;
 
-  constructor(private http: HttpClient,
-
-  ) { }
+  constructor(private http: HttpClient) { }
 
   getAllProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl);
@@ -51,11 +50,21 @@ export class ProductService {
     return imagen.startsWith('http') ? imagen : `assets/productos/${imagen}`;
   }
 
+  // NUEVO MÉTODO AUXILIAR: Resuelve la ruta para la imagen secundaria de hover
+  getProductHoverImageUrl(imagenHover: string | undefined): string | null {
+    if (!imagenHover) return null; // Si es null o undefined, no retorna ruta de asset
+    return imagenHover.startsWith('http') ? imagenHover : `assets/productos/${imagenHover}`;
+  }
+
   updateStock(id: number, nuevoStock: number): Observable<Product> {
     return this.http.patch<Product>(`${this.apiUrl}/${id}/stock`, { stock: nuevoStock });
   }
 
   getTop5Vendidos(): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/top5`);
+  }
+
+  getAllCategories(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/categorias`);
   }
 }
