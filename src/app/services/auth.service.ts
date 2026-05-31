@@ -3,11 +3,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { CartService } from './cart.service';
-import { WishlistService } from './wishlist';
 import { environment } from '../../environments/environment';
 
 export interface User {
-  id?: number;
+  id?: number;           // ← AGREGADO
   idUsuario?: number;
   name?: string;
   username?: string;
@@ -24,12 +23,12 @@ export interface AuthState {
 export class AuthService {
 
   private apiUrl = `${environment.apiUrl}/auth`;
+
   private readonly TOKEN_KEY = 'access_token';
-  private readonly USER_KEY  = 'user_data';
+  private readonly USER_KEY = 'user_data';
   private redirectUrl: string | null = null;
 
-  private cartService     = inject(CartService);
-  private wishlistService = inject(WishlistService);
+  private cartService = inject(CartService);
 
   private authState = new BehaviorSubject<AuthState>({
     isLoggedIn: !!localStorage.getItem(this.USER_KEY),
@@ -40,17 +39,32 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  get currentUser(): User | null { return this.authState.value.user; }
+  // ← AGREGAR ESTE GETTER
+  get currentUser(): User | null {
+    return this.authState.value.user;
+  }
+
   get isAdmin(): boolean {
     const user = this.authState.value.user;
     return !!(user?.authorities?.includes('ADMIN') || user?.authorities?.includes('ROLE_ADMIN'));
   }
-  get isLoggedIn(): boolean { return this.authState.value.isLoggedIn; }
 
-  getUserData(): User | null { return this.authState.value.user; }
-  getToken(): string | null  { return localStorage.getItem(this.TOKEN_KEY); }
+  get isLoggedIn(): boolean {
+    return this.authState.value.isLoggedIn;
+  }
 
-  setRedirectUrl(url: string): void { this.redirectUrl = url; }
+  getUserData(): User | null {
+    return this.authState.value.user;
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  setRedirectUrl(url: string): void {
+    this.redirectUrl = url;
+  }
+
   getAndClearRedirectUrl(): string | null {
     const url = this.redirectUrl;
     this.redirectUrl = null;
@@ -71,13 +85,6 @@ export class AuthService {
           localStorage.setItem(this.TOKEN_KEY, res.token);
           localStorage.setItem(this.USER_KEY, JSON.stringify(user));
           this.authState.next({ isLoggedIn: true, user });
-
-          if (user.idUsuario) {
-            // Sincronizar carrito localStorage → BD
-            this.cartService.sincronizarAlLogin(user.idUsuario, res.token);
-            // Sincronizar wishlist localStorage → BD ← NUEVO
-            this.wishlistService.sincronizarAlLogin(user.idUsuario, res.token);
-          }
         }
       })
     );
@@ -89,8 +96,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.clear();
-    this.cartService.limpiarAlLogout();
-    this.wishlistService.limpiarAlLogout();
+    this.cartService.clearCart();
     this.authState.next({ isLoggedIn: false, user: null });
     this.router.navigate(['/login']);
   }
@@ -98,16 +104,17 @@ export class AuthService {
   private decodeToken(token: string): User {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      console.log('JWT Payload:', payload);
+      console.log('🔍 JWT Payload:', payload); // ← DEBUG
+
       return {
-        id:          payload.idUsuario || payload.sub || payload.id,
-        idUsuario:   payload.idUsuario || payload.sub,
-        name:        payload.nombre    || payload.name || payload.username,
-        email:       payload.sub       || payload.email,
-        authorities: payload.roles     || payload.authorities || []
+        id: payload.idUsuario || payload.sub || payload.id,           // ← AGREGADO
+        idUsuario: payload.idUsuario || payload.sub,
+        name: payload.nombre || payload.name || payload.username,
+        email: payload.sub || payload.email,
+        authorities: payload.roles || payload.authorities || []
       };
     } catch (e) {
-      console.error('Error decodificando token:', e);
+      console.error('❌ Error decodificando token:', e);
       return { email: '', authorities: [] };
     }
   }

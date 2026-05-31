@@ -1,115 +1,62 @@
-<app-promo-banner></app-promo-banner>
-<app-carousel></app-carousel>
-
-<section class="explore-categories-section container my-5" *ngIf="!isLoading">
-  <h2 class="section-main-title">Explora más <strong>categorías</strong></h2>
-  <div class="categories-3d-grid">
-    <a [routerLink]="['/productos']" [queryParams]="{cat: 'Belleza'}" class="category-3d-card">
-      <div class="image-3d-wrapper"><img src="assets/productos/belleza.png" alt="Belleza" class="img-3d"></div>
-      <span class="category-3d-name">Belleza</span>
-    </a>
-    <a [routerLink]="['/productos']" [queryParams]="{cat: 'Papelería'}" class="category-3d-card">
-      <div class="image-3d-wrapper"><img src="assets/productos/notebook.png" alt="Papelería" class="img-3d"></div>
-      <span class="category-3d-name">Papelería</span>
-    </a>
-    <a [routerLink]="['/productos']" [queryParams]="{cat: 'Hogar'}" class="category-3d-card">
-      <div class="image-3d-wrapper"><img src="assets/productos/home.png" alt="Hogar" class="img-3d"></div>
-      <span class="category-3d-name">Hogar</span>
-    </a>
-    <a [routerLink]="['/productos']" [queryParams]="{cat: 'Juguetería'}" class="category-3d-card">
-      <div class="image-3d-wrapper"><img src="assets/productos/jugueteria.png" alt="Juguetería" class="img-3d"></div>
-      <span class="category-3d-name">Juguetería</span>
-    </a>
-    <a [routerLink]="['/productos']" [queryParams]="{cat: 'Tecnología'}" class="category-3d-card">
-      <div class="image-3d-wrapper"><img src="assets/productos/audifonos.png" alt="Tecnología" class="img-3d"></div>
-      <span class="category-3d-name">Tecnología</span>
-    </a>
-    <a [routerLink]="['/productos']" [queryParams]="{cat: 'Moda'}" class="category-3d-card">
-      <div class="image-3d-wrapper"><img src="assets/productos/moda.png" alt="Moda" class="img-3d"></div>
-      <span class="category-3d-name">Moda</span>
-    </a>
-  </div>
-</section>
-
-<div class="container my-5" *ngIf="!isLoading">
-  <div class="row g-4 mb-5" *ngIf="productosGrilla.length > 0">
-    <div class="col-xl-3 col-lg-3 col-md-6" *ngFor="let p of productosGrilla">
-      <div class="product-card">
-        <div class="product-img standard-img">
-          <div class="img-container"><img [src]="productService.getProductImageUrl(p.imagen)" [alt]="p.nombre"></div>
-          <span class="stock-badge in-stock">● En Stock</span>
-          <span class="delivery-badge">Recíbelo en 48hrs</span>
-        </div>
-        <div class="product-info-wrapper">
-          <div class="product-details">
-            <span class="brand">{{ p.categoria.nombre }}</span>
-            <p class="product-title">{{ p.nombre }}</p>
-          </div>
-          <div class="price-block"><span class="current-price">S/{{ p.precio | number:'1.2-2' }}</span></div>
-        </div>
-        <div class="card-actions-wrapper">
-          <button class="btn-agregar" (click)="$event.stopPropagation(); agregarAlCarrito(p)"><i class="fa-solid fa-cart-shopping me-2"></i> Agregar</button>
-          <button class="btn-wishlist" (click)="$event.stopPropagation(); alternarFavorito(p)"><i [ngClass]="wishlistService.isInWishlist(p.idProducto) ? 'fa-solid fa-heart text-danger' : 'fa-regular fa-heart'"></i></button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row g-4 mb-5" *ngIf="productosDestacados.length > 0">
-    <div class="col-lg-6 col-md-12" *ngFor="let p of productosDestacados">
-      <div class="product-card featured-card">
-        <div class="product-img large-img">
-          <div class="img-container"><img [src]="productService.getProductImageUrl(p.imagen)" [alt]="p.nombre"></div>
-          <span class="stock-badge in-stock">● En Stock</span>
-          <span class="delivery-badge">Recíbelo en 48hrs</span>
-        </div>
-        <div class="product-info-wrapper">
-          <div class="product-details">
-            <span class="brand">{{ p.categoria.nombre | uppercase }}</span>
-            <p class="product-title">{{ p.nombre }}</p>
-          </div>
-          <div class="price-block"><span class="current-price">S/{{ p.precio | number:'1.2-2' }}</span></div>
-        </div>
-        <div class="card-actions-wrapper">
-          <button class="btn-agregar" (click)="$event.stopPropagation(); agregarAlCarrito(p)"><i class="fa-solid fa-cart-shopping me-2"></i> Agregar</button>
-          <button class="btn-wishlist" (click)="$event.stopPropagation(); alternarFavorito(p)"><i [ngClass]="wishlistService.isInWishlist(p.idProducto) ? 'fa-solid fa-heart text-danger' : 'fa-regular fa-heart'"></i></button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="category-block mb-5" *ngFor="let cat of categories">
-    <div *ngIf="productsByCategory[cat] && productsByCategory[cat].length > 0">
-      <div class="section-header mt-5 mb-4 d-flex justify-content-between align-items-center">
-        <h3 class="fs-4 fw-bold text-dark">Lo mejor en {{ cat }}</h3>
-        <a [routerLink]="['/productos']" [queryParams]="{cat: cat}" class="btn btn-sm btn-outline-secondary">Ver todo</a>
-      </div>
-      <div class="five-cards-row">
-        <div class="five-card-wrapper" *ngFor="let p of productsByCategory[cat] | slice:0:5">
-          <div class="new-product-card">
-            <div class="new-card-img"><img [src]="productService.getProductImageUrl(p.imagen)" [alt]="p.nombre"></div>
-            <div class="new-card-badges"><span class="stock-badge in-stock">● En Stock</span><span class="delivery-badge">Recíbelo en 48hrs</span></div>
-            <div class="new-card-body">
-              <p class="new-card-title">{{ p.nombre }}</p>
-              <div class="new-card-prices"><span class="new-current-price">S/ {{ p.precio | number:'1.2-2' }}</span></div>
-            </div>
-            <div class="new-card-actions">
-              <button class="btn-agregar" (click)="$event.stopPropagation(); agregarAlCarrito(p)"><i class="fa-solid fa-cart-shopping me-2"></i> Agregar</button>
-              <button class="btn-wishlist" (click)="$event.stopPropagation(); alternarFavorito(p)"><i [ngClass]="wishlistService.isInWishlist(p.idProducto) ? 'fa-solid fa-heart text-danger' : 'fa-regular fa-heart'"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast-container" [class.show]="notificationService.show" (click)="notificationService.cerrarToast()">
-    <i [class]="notificationService.type === 'success' ? 'fa-solid fa-check-circle' : 'fa-solid fa-heart'"></i>
-    <span>{{ notificationService.message }}</span>
+<div class="hero-section">
+  <div class="hero-overlay"></div>
+  <div class="container hero-content">
+    <h1 class="display-3 fw-bold">Tecnología de Vanguardia</h1>
+    <p class="lead">Las mejores marcas con precios de liquidación.</p>
+    <a routerLink="/productos" class="btn btn-comprar btn-lg mt-3 shadow">Ver Ofertas</a>
   </div>
 </div>
 
-<div class="text-center my-5" *ngIf="isLoading">
-  <div class="spinner-border text-danger" role="status"></div>
-  <p class="mt-2">Cargando la tienda...</p>
+<div class="container my-5">
+  <h2 class="text-center fw-bold mb-5">Explora nuestros mundos</h2>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="category-block main-block-large" style="background-image: url('https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1200');">
+        <div class="block-overlay"></div>
+        <div class="block-text">
+          <span class="badge bg-danger mb-2">HOT DEAL</span>
+          <h2 class="display-4 fw-bold">MUNDO LAPTOPS</h2>
+          <p class="fs-5">Hasta 30% dscto en marcas seleccionadas.</p>
+          <a [routerLink]="['/productos']" [queryParams]="{ cat: 'Laptops' }" class="category-link">
+            Explorar Todo <i class="bi bi-chevron-right ms-2"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 d-flex flex-column gap-4">
+
+      <div class="category-block side-block-equal" style="background-image: url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=500');">
+        <div class="block-overlay"></div>
+        <div class="block-text">
+          <h4>CELULARES</h4>
+          <a [routerLink]="['/productos']" [queryParams]="{ cat: 'Celulares' }" class="category-link">
+            Comprar ahora <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="category-block side-block-equal" style="background-image: url('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=500');">
+        <div class="block-overlay"></div>
+        <div class="block-text">
+          <h4>ACCESORIOS</h4>
+          <a [routerLink]="['/productos']" [queryParams]="{ cat: 'Accesorios' }" class="category-link">
+            Ver novedades <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="category-block side-block-equal" style="background-image: url('https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?q=80&w=500');">
+        <div class="block-overlay"></div>
+        <div class="block-text">
+          <h4>MONITORES</h4>
+          <a [routerLink]="['/productos']" [queryParams]="{ cat: 'Monitores' }" class="category-link">
+            Ver catálogo <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>

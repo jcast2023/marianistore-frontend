@@ -41,7 +41,7 @@
                   {{ pedido.emailUsuario || 'ID Cliente: ' + pedido.idUsuario }}
               </td>
               <td>{{ pedido.fechaPedido | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td class="text-success fw-bold">S/{{ pedido.total | number:'1.2-2' }}</td>
+              <td class="text-success fw-bold">${{ pedido.total | number:'1.2-2' }}</td>
 
               <td class="text-center">
                 <div class="d-flex flex-column align-items-center gap-2">

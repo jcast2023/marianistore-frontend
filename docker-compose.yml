@@ -1,65 +1,43 @@
-version: '3.8'
-
 services:
-  # 1. BASE DE DATOS MySQL
-  mysql:
-    image: mysql:8.0
-    container_name: tiendaonline-mysql
+  # 1. LA BASE DE DATOS
+  db-mysql:
+    image: mysql:8.0-oracle
+    container_name: techshop-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: tiendaonline_db
-      MYSQL_USER: tiendaonline
-      MYSQL_PASSWORD: tiendaonline123
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: techshop_db
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - tiendaonline-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-utiendaonline", "-ptiendaonline123"]
-      timeout: 20s
-      retries: 10
 
-  # 2. BACKEND Spring Boot
-  backend:
+      - ./mysql_data:/var/lib/mysql
+      - ./init:/docker-entrypoint-initdb.d
+
+  # 2. EL BACKEND
+  backend-api:
     build: ../e-commerce
-    image: tiendaonline-backend
-    container_name: tiendaonline-backend
-    restart: always
+    image: techshop-backend
+    container_name: techshop-api
+    depends_on:
+      - db-mysql
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/tiendaonline_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: tiendaonline
-      SPRING_DATASOURCE_PASSWORD: tiendaonline123
-      JWT_SECRET: tiendaonline2024SecretKeyForJWTTokenGenerationInDocker
-      JWT_EXPIRATION: 86400000
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - tiendaonline-network
+      SPRING_DATASOURCE_URL: jdbc:mysql://db-mysql:3306/techshop_db?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    restart: on-failure
 
-  # 3. FRONTEND Angular
-  frontend:
+  # 3. EL FRONTEND (Ya lo construiste en el disco C)
+  frontend-web:
     build: .
-    image: tiendaonline-frontend
-    container_name: tiendaonline-frontend
-    restart: always
-    ports:
-      - "4200:80"
+    image: techshop-frontend
+    container_name: techshop-web
     depends_on:
-      - backend
-    networks:
-      - tiendaonline-network
-
-volumes:
-  mysql_data:
-    driver: local
-
-networks:
-  tiendaonline-network:
-    driver: bridge
+      - backend-api
+    ports:
+      - "81:80"
+    volumes:
+      # Formato: [Ruta en Windows]:[Ruta en el Contenedor]
+      - ./src/assets/productos:/usr/share/nginx/html/assets/productos

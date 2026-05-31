@@ -1,119 +1,57 @@
-<div class="pre-footer-benefits">
-  <div class="container py-3">
-    <div class="row g-3 text-center align-items-center">
-      <div class="col-6 col-md-3 benefit-item">
-        <i class="fa-solid fa-headset benefit-icon"></i>
-        <div class="benefit-text">
-          <strong>ASESORÍA PERSONALIZADA</strong>
-          <p class="mb-0">Te ayudamos con tu compra</p>
-        </div>
-      </div>
-      <div class="col-6 col-md-3 benefit-item">
-        <i class="fa-solid fa-credit-card benefit-icon"></i>
-        <div class="benefit-text">
-          <strong>MÉTODOS DE PAGO</strong>
-          <p class="mb-0">Todos los medios con tarjeta</p>
-        </div>
-      </div>
-      <div class="col-6 col-md-3 benefit-item">
-        <i class="fa-solid fa-shield-halved benefit-icon"></i>
-        <div class="benefit-text">
-          <strong>PAGO 100% SEGURO</strong>
-          <p class="mb-0">Pasarela de pago confiable</p>
-        </div>
-      </div>
-      <div class="col-6 col-md-3 benefit-item">
-        <i class="fa-solid fa-truck-fast benefit-icon"></i>
-        <div class="benefit-text">
-          <strong>DELIVERY NACIONAL</strong>
-          <p class="mb-0">Llegamos a todo el Perú</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<footer class="main-footer pt-5 pb-3">
+<footer class="custom-footer">
   <div class="container">
-    <div class="row g-4 justify-content-between">
+    <div class="row gy-4">
 
-      <div class="col-lg-3 col-md-6 text-start">
-        <h3 class="footer-logo mb-3">MarianíStore</h3>
-        <p class="footer-description">
-          Tu marketplace de confianza en 2026. Los mejores productos al mejor precio con envío a todo el Perú.
+      <div class="col-lg-4 col-md-6">
+        <h5 class="footer-logo fw-bold mb-3 text-primary">TechShop</h5>
+        <p class="text-muted small pe-lg-5">
+          Tu aliado tecnológico en 2026. Calidad garantizada en cada compra y soporte técnico especializado para todos tus dispositivos.
         </p>
-        <div class="footer-social-icons d-flex gap-2">
-          <a href="#" class="social-link"><i class="fa-brands fa-facebook-f"></i></a>
-          <a href="#" class="social-link"><i class="fa-brands fa-instagram"></i></a>
+        <div class="social-links d-flex gap-3 mt-4">
+          <a href="#"><i class="bi bi-facebook"></i></a>
+          <a href="#"><i class="bi bi-instagram"></i></a>
+          <a href="#"><i class="bi bi-twitter-x"></i></a>
+          <a href="#"><i class="bi bi-linkedin"></i></a>
         </div>
       </div>
 
-      <div class="col-lg-2 col-md-6 text-start">
-        <h5 class="footer-title mb-3">SERVICIO AL CLIENTE</h5>
+      <div class="col-lg-2 col-md-6">
+        <h6 class="fw-bold mb-3 text-uppercase small">Servicio al Cliente</h6>
         <ul class="list-unstyled footer-links">
-          <li><a [routerLink]="['/ayuda']">Centro de ayuda</a></li>
-          <li><a href="#">Seguimiento de pedido</a></li>
-          <li><a [routerLink]="['/devoluciones']">Cambios y devoluciones</a></li>
-          <li><a [routerLink]="['/terminos']">Términos y Condiciones</a></li>
+          <li><a routerLink="/ayuda">Centro de ayuda</a></li>
+          <li><a routerLink="/mis-pedidos">Seguimiento de pedido</a></li>
+          <li><a routerLink="/devoluciones">Cambios y devoluciones</a></li>
+          <li><a routerLink="/terminos">Términos y Condiciones</a></li>
         </ul>
       </div>
 
-      <div class="col-lg-2 col-md-6 text-start">
-        <h5 class="footer-title mb-3">CATEGORÍAS</h5>
+      <div class="col-lg-2 col-md-6">
+        <h6 class="fw-bold mb-3 text-uppercase small">Categorías</h6>
         <ul class="list-unstyled footer-links">
-          <li><a [routerLink]="['/productos']" [queryParams]="{cat: 'Belleza'}">Belleza</a></li>
-          <li><a [routerLink]="['/productos']" [queryParams]="{cat: 'Hogar'}">Hogar</a></li>
-          <li><a [routerLink]="['/productos']" [queryParams]="{cat: 'Juguetería'}">Juguetería</a></li>
-          <li><a [routerLink]="['/productos']" [queryParams]="{cat: 'Tecnología'}">Tecnología</a></li>
-          <li><a [routerLink]="['/productos']" [queryParams]="{cat: 'Papelería'}">Papelería</a></li>
-          <li><a [routerLink]="['/productos']" [queryParams]="{cat: 'Moda'}">Moda</a></li>
+          <li><a [routerLink]="['/productos']" [queryParams]="{ cat: 'Laptops' }">Laptops</a></li>
+          <li><a [routerLink]="['/productos']" [queryParams]="{ cat: 'Celulares' }">Celulares</a></li>
+          <li><a [routerLink]="['/productos']" [queryParams]="{ cat: 'Accesorios' }">Accesorios</a></li>
+          <li><a [routerLink]="['/productos']" [queryParams]="{ cat: 'Monitores' }">Monitores</a></li>
         </ul>
       </div>
 
-      <div class="col-lg-4 col-md-6 text-start">
-        <h5 class="footer-title mb-3">NEWSLETTER</h5>
-        <p class="footer-description small-text">Suscríbete para recibir ofertas exclusivas.</p>
-        <div class="newsletter-box mb-4 d-flex">
-          <input type="email" placeholder="Tu correo" class="form-control newsletter-input">
-          <button class="btn btn-unirse">UNIRSE</button>
+      <div class="col-lg-4 col-md-6">
+        <h6 class="fw-bold mb-3 text-uppercase small">Newsletter</h6>
+        <p class="text-muted small">Suscríbete para recibir ofertas exclusivas.</p>
+        <div class="input-group newsletter-group mt-3">
+          <input type="email" class="form-control" placeholder="Tu correo" [(ngModel)]="emailNewsletter" #emailInput="ngModel" name="email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
+          <button class="btn btn-primary" type="button" (click)="suscribir()" [disabled]="emailInput.invalid"> UNIRSE </button>
         </div>
-
-        <h5 class="footer-title-sub mb-2">MÉTODOS DE PAGO</h5>
-        <div class="payment-methods-icons d-flex gap-2 align-items-center mb-4">
-          <div class="payment-badge"><i class="fa-brands fa-cc-visa text-white fs-4"></i></div>
-          <div class="payment-badge"><i class="fa-brands fa-cc-mastercard text-white fs-4"></i></div>
-          <div class="payment-badge"><i class="fa-brands fa-cc-amex text-white fs-4"></i></div>
-          <div class="payment-badge"><i class="fa-solid fa-money-bill-transfer text-white fs-5"></i></div>
-        </div>
-
-        <div class="reclamaciones-footer-wrapper mt-4 d-flex flex-column gap-2">
-          <a [routerLink]="['/libro-reclamaciones']" class="btn-libro-reclamaciones d-inline-flex align-items-center gap-3 w-100">
-            <div class="book-icon-wrapper">
-              <i class="fa-solid fa-book-open"></i>
-            </div>
-            <div class="book-text">
-              <span class="main-txt">Libro de Reclamaciones</span>
-              <span class="sub-txt">Virtual</span>
-            </div>
-          </a>
-
-          <a [routerLink]="['/seguimiento-reclamo']" class="btn text-white btn-sm text-start ps-0 opacity-75 text-decoration-none mt-1 hover-link">
-            <i class="fa-solid fa-clock-rotate-left me-2 text-warning"></i>Consultar Estado de Reclamación
-          </a>
-        </div>
-      </div>
-
-    </div>
-
-    <hr class="footer-divider my-4">
-
-    <div class="row align-items-center">
-      <div class="col-md-12 text-center">
-        <p class="copyright-text mb-0">
-          © 2026 <strong>MarianíStore</strong>. Todos los derechos reservados.
-        </p>
+        <small class="text-danger d-block mt-2" *ngIf="emailInput.invalid && emailInput.dirty">
+          Formato de correo inválido.
+        </small>
       </div>
     </div>
 
+    <hr class="my-5 opacity-10">
+
+    <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+      <p class="mb-0 text-muted small">&copy; 2026 TechShop. Todos los derechos reservados.</p>
+    </div>
   </div>
 </footer>

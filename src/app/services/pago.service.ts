@@ -7,25 +7,21 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class PagoService {
-  private apiUrl     = `${environment.apiUrl}/pagos`;
+  private apiUrl = `${environment.apiUrl}/pagos`;
   private pedidosUrl = `${environment.apiUrl}/pedidos`;
 
   constructor(private http: HttpClient) {}
 
-  // Crear preferencia de Mercado Pago
-  crearPreferencia(pedidoId: number, monto: number, email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/preferencia`, {
-      pedidoId,
-      descripcion: 'Compra en MarianíStore',
-      monto,
-      email
-    });
-  }
-
-  // PayPal / Transferencia
+  // ← ACTUALIZAR ESTE MÉTODO para recibir el método de pago
   pagarPedido(idPedido: number, metodoPago?: string): Observable<any> {
+    // Construir URL con parámetros
     let url = `${this.pedidosUrl}/${idPedido}/pagar`;
-    if (metodoPago) url += `?metodoPago=${metodoPago}`;
+
+    // Si se proporciona método de pago, agregarlo como parámetro
+    if (metodoPago) {
+      url += `?metodoPago=${metodoPago}`;
+    }
+
     return this.http.put(url, {});
   }
 

@@ -1,262 +1,100 @@
-/* ==========================================
-   BARRA DE BENEFICIOS (PRE-FOOTER)
-   ========================================== */
-.pre-footer-benefits {
-  background-color: #f8f9fa;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 1.5rem 0;
+$footer-bg: #f8f9fa;
+$text-main: #2d3436;
+$text-muted: #636e72;
+$primary-color: #007bff;
 
-  .benefit-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-  }
-
-  .benefit-icon {
-    font-size: 1.6rem;
-    color: #2b4c3f;
-  }
-
-  .benefit-text {
-    text-align: left;
-
-    strong {
-      font-size: 0.8rem;
-      letter-spacing: 0.5px;
-      color: #111a2e;
-      display: block;
-      margin-bottom: 2px;
-    }
-
-    p {
-      font-size: 0.75rem;
-      color: #6c757d;
-    }
-  }
-}
-
-/* ==========================================
-   FOOTER PRINCIPAL
-   ========================================== */
-.main-footer {
-  background-color: #011d10;
-  color: #a0aec0;
-  font-size: 0.9rem;
+.custom-footer {
+  background-color: $footer-bg;
+  padding: 80px 0 40px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  color: $text-main;
 
   .footer-logo {
-    color: #ffffff;
-    font-weight: 700;
     font-size: 1.5rem;
     letter-spacing: -0.5px;
   }
 
-  .footer-title {
-    color: #ffffff;
+  h6 {
+    color: $text-main;
     font-size: 0.85rem;
-    font-weight: 700;
     letter-spacing: 1px;
   }
 
-  .footer-title-sub {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.8px;
-  }
-
-  .footer-description {
-    line-height: 1.6;
-    font-size: 0.85rem;
-  }
-
-  .small-text {
-    font-size: 0.8rem;
-    color: #718096;
-  }
-
-  /* Enlaces */
   .footer-links {
     li {
-      margin-bottom: 10px;
-    }
+      margin-bottom: 12px;
+      a {
+        color: $text-muted;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        display: inline-block;
 
+        &:hover {
+          color: $primary-color;
+          padding-left: 5px;
+        }
+      }
+    }
+  }
+
+  .social-links {
     a {
-      color: #a0aec0;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      font-size: 0.85rem;
-
-      &:hover {
-        color: #ffffff;
-        padding-left: 4px;
-      }
+      color: $text-muted;
+      font-size: 1.2rem;
+      transition: color 0.3s ease;
+      &:hover { color: $primary-color; }
     }
   }
 
-  /* Redes Sociales */
-  .footer-social-icons {
-    .social-link {
-      width: 36px;
-      height: 36px;
-      background-color: rgba(255, 255, 255, 0.05);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      text-decoration: none;
-      transition: background 0.2s ease, transform 0.2s ease;
-
-      &:hover {
-        background-color: #2563eb;
-        color: #fff;
-        transform: translateY(-2px);
-      }
-    }
-  }
-
-  /* Newsletter Box */
-  .newsletter-box {
-    border-radius: 4px;
-    overflow: hidden;
-    background-color: rgba(255, 255, 255, 0.05);
-
-    .newsletter-input {
-      background: transparent !important;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-right: none;
-      color: #ffffff !important;
-      border-radius: 4px 0 0 4px;
-      padding: 10px 15px;
-      font-size: 0.85rem;
-
-      &::placeholder {
-        color: #4a5568;
-      }
-
+  .newsletter-group {
+    .form-control {
+      border: 1px solid rgba(0,0,0,0.1);
+      padding: 12px 15px;
+      font-size: 0.9rem;
       &:focus {
         box-shadow: none;
-        border-color: rgba(255, 255, 255, 0.25);
+        border-color: $primary-color;
       }
     }
-
-    .btn-unirse {
-      background-color: #2563eb;
-      color: #ffffff;
+    .btn {
       font-weight: 600;
-      font-size: 0.8rem;
-      letter-spacing: 0.5px;
-      padding: 0 20px;
-      border-radius: 0 4px 4px 0;
-      transition: background 0.2s;
-
-      &:hover {
-        background-color: #1d4ed8;
-        color: #fff;
-      }
+      text-transform: uppercase;
+      font-size: 0.75rem;
     }
   }
 
-  /* Badges de Medios de Pago */
-  .payment-methods-icons {
-    .payment-badge {
-      background-color: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      padding: 4px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
-
-  /* Libro de Reclamaciones */
-  .reclamaciones-footer-wrapper {
-    .btn-libro-reclamaciones {
-      background-color: #ffffff;
-      border-radius: 6px;
-      padding: 8px 16px;
-      text-decoration: none;
-      color: #0c1220 !important;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      border: 1px solid #e2e8f0;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(255, 255, 255, 0.1);
-      }
-
-      .book-icon-wrapper i {
-        font-size: 1.6rem;
-        color: #c53030;
-      }
-
-      .book-text {
-        display: flex;
-        flex-direction: column;
-
-        .main-txt {
-          font-weight: 700;
-          font-size: 0.8rem;
-          line-height: 1.2;
-        }
-
-        .sub-txt {
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          color: #718096;
-          font-weight: 600;
-        }
-      }
-    }
-  }
-
-  .footer-divider {
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    opacity: 1;
-  }
-
-  .copyright-text {
-    font-size: 0.8rem;
-    color: #4a5568;
+  .footer-bottom {
+    border-top: 1px solid rgba(0,0,0,0.05);
+    padding-top: 30px;
   }
 }
 
-/* ==========================================
-   RESPONSIVE MEDIA QUERIES
-   ========================================== */
+
 @media (max-width: 768px) {
-  .main-footer {
+  .custom-footer {
+    padding: 50px 0 30px;
     text-align: center;
 
-    .text-start {
-      text-align: center !important;
-    }
+    .social-links { justify-content: center; }
 
-    .footer-social-icons,
-    .payment-methods-icons,
-    .reclamaciones-footer-wrapper {
-      justify-content: center !important;
-    }
-
-    .footer-links a:hover {
+    .footer-links li a:hover {
       padding-left: 0;
     }
-  }
-}
 
-@media (max-width: 576px) {
-  .pre-footer-benefits {
-    .benefit-item {
+    .newsletter-group {
       flex-direction: column;
-      text-align: center;
-    }
-    .benefit-text {
-      text-align: center;
+      gap: 10px;
+
+      .form-control {
+        border-radius: 5px !important;
+        text-align: center;
+      }
+
+      .btn {
+        border-radius: 5px !important;
+        width: 100%;
+      }
     }
   }
 }

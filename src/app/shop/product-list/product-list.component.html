@@ -1,279 +1,78 @@
-<div class="catalog-page">
-  <div class="container py-5">
+<app-navbar></app-navbar>
 
-    <div class="catalog-header animate-fadeInUp">
-      <h1 class="catalog-title gradient-text">Catálogo de Productos</h1>
-      <p class="catalog-subtitle">Descubre nuestra selección de productos</p>
+<div class="container py-5">
+  <div class="row mb-5">
+    <div class="col-12 text-center">
+      <h1 class="display-5 fw-bold mb-3 gradient-text">Catálogo de Productos</h1>
+      <p class="text-muted fs-5">Descubre nuestra selección premium de tecnología</p>
       <div class="header-line mx-auto"></div>
     </div>
+  </div>
 
-    <div class="search-section animate-fadeInUp delay-1">
+  <div class="row mb-5 justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
       <div class="search-bar-modern">
         <span class="search-icon"><i class="bi bi-search"></i></span>
-        <input type="text" class="search-input"
-               placeholder="¿Qué estás buscando hoy?"
-               [(ngModel)]="searchTerm"
-               (input)="searchProducts()">
-        <button class="btn-search-action">Buscar</button>
+        <input type="text" class="search-input" placeholder="¿Qué estás buscando hoy?"
+               [(ngModel)]="searchTerm" (input)="searchProducts()">
+        <button class="btn btn-search-action" (click)="searchProducts()">Buscar</button>
       </div>
     </div>
+  </div>
 
-    <div class="row g-4">
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @for (product of filteredProducts; track product.idProducto) {
+    <div class="col">
+      <div class="card product-card h-100 shadow-sm border-0">
 
-      <div class="col-lg-3 animate-fadeInLeft">
-        <div class="filters-panel">
-          <div class="filters-header">
-            <h5 class="filters-title">
-              <i class="bi bi-funnel me-2"></i>Filtros
-            </h5>
-            <button class="btn-clear-filters" (click)="clearFilters()">
-              Limpiar
-            </button>
-          </div>
+        <div class="position-relative overflow-hidden bg-white p-3" style="height: 280px;">
+          <img [src]="productService.getProductImageUrl(product.imagen)"
+               [alt]="product.nombre" class="card-img-top img-custom"
+               (error)="$event.target.src = 'assets/p1.jpg'" />
 
-          <div class="filter-section">
-            <h6 class="filter-section-title">Categorías</h6>
-            <div class="filter-options">
-              <label class="filter-option" [class.active]="selectedCategory === ''">
-                <input type="radio" name="category" value=""
-                       [(ngModel)]="selectedCategory"
-                       (change)="applyFilters()">
-                <span class="filter-label">
-                  <i class="bi bi-grid me-2"></i>Todos
-                </span>
-              </label>
-              @for (cat of categories; track cat) {
-                <label class="filter-option" [class.active]="selectedCategory === cat">
-                  <input type="radio" name="category" [value]="cat"
-                         [(ngModel)]="selectedCategory"
-                         (change)="applyFilters()">
-                  <span class="filter-label">{{ cat }}</span>
-                </label>
-              }
-            </div>
-          </div>
-
-          <div class="filter-section">
-            <h6 class="filter-section-title">Precio</h6>
-            <div class="filter-options">
-              @for (range of priceRanges; track range.label) {
-                <label class="filter-option" [class.active]="selectedPrice === range.label">
-                  <input type="radio" name="price" [value]="range.label"
-                         [(ngModel)]="selectedPrice"
-                         (change)="onLocalPriceFilterChange()">
-                  <span class="filter-label">{{ range.label }}</span>
-                </label>
-              }
-            </div>
-          </div>
-
-          <div class="filter-section">
-            <h6 class="filter-section-title">Disponibilidad</h6>
-            <div class="filter-options">
-              <label class="filter-option">
-                <input type="checkbox" [(ngModel)]="onlyInStock"
-                       (change)="applyFilters()">
-                <span class="filter-label">
-                  <i class="bi bi-check-circle me-2 text-success"></i>
-                  Solo en stock
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <div class="filter-section">
-            <h6 class="filter-section-title">Ordenar por</h6>
-            <select class="filter-select" [(ngModel)]="sortBy" (change)="applyFilters()">
-              <option value="">Relevancia</option>
-              <option value="price-asc">Menor precio</option>
-              <option value="price-desc">Mayor precio</option>
-              <option value="name-asc">A-Z</option>
-              <option value="name-desc">Z-A</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-9">
-
-        <div class="results-bar animate-fadeInUp">
-          <span class="results-count">
-            {{ filteredProducts.length }} producto(s) encontrado(s)
-          </span>
-          <div class="view-toggle">
-            <button class="view-btn" [class.active]="viewMode === 'grid'"
-                    (click)="viewMode = 'grid'">
-              <i class="bi bi-grid-3x3-gap"></i>
-            </button>
-            <button class="view-btn" [class.active]="viewMode === 'list'"
-                    (click)="viewMode = 'list'">
-              <i class="bi bi-list-ul"></i>
-            </button>
+          <div class="position-absolute top-0 start-0 m-3">
+            @if (product.stock === 0) {
+              <span class="badge badge-sold-out">Agotado</span>
+            } @else if (product.stock < 5) {
+              <span class="badge badge-low-stock">¡Últimas unidades!</span>
+            }
           </div>
         </div>
 
-        @if (viewMode === 'grid') {
-          <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 animate-fadeIn delay-2">
-            @for (product of paginatedProducts; track product.idProducto) {
-              <div class="col">
-                <div class="product-card">
+        <div class="card-body d-flex flex-column p-4">
+          <span class="badge bg-light text-primary border mb-2">
+  <i class="bi bi-tag-fill me-1"></i>
+  {{ (product.categoria && product.categoria.nombre) ? product.categoria.nombre : 'General' }}
+</span>
 
-                  <div class="product-image position-relative" [ngClass]="{'has-hover-img': product.imagenHover}">
-                    <ng-container *ngIf="product.imagenHover; else soloUnaImagenGrid">
-                      <img [src]="productService.getProductImageUrl(product.imagen)"
-                           class="main-img"
-                           [alt]="product.nombre"
-                           (error)="$event.target.src = 'assets/p1.jpg'">
+          <h5 class="card-title fw-bold text-dark mb-1 text-truncate">{{ product.nombre }}</h5>
+          <p class="card-text text-muted small mb-4">{{ product.descripcion | slice:0:90 }}...</p>
 
-                      <img [src]="productService.getProductHoverImageUrl(product.imagenHover)"
-                           class="hover-img"
-                           [alt]="product.nombre + ' - Detalle'"
-                           (error)="$event.target.src = 'assets/p1.jpg'">
-                    </ng-container>
-
-                    <ng-template #soloUnaImagenGrid>
-                      <img [src]="productService.getProductImageUrl(product.imagen)"
-                           [alt]="product.nombre"
-                           (error)="$event.target.src = 'assets/p1.jpg'">
-                    </ng-template>
-
-                    <button class="btn-favorite-floating"
-                            (click)="toggleFavorite(product); $event.stopPropagation()"
-                            [disabled]="product.stock === 0"
-                            [title]="product.stock === 0 ? 'Producto agotado' : (isProductInWishlist(product.idProducto) ? 'Quitar de favoritos' : 'Agregar a favoritos')">
-                      <i class="bi" [ngClass]="isProductInWishlist(product.idProducto) ? 'bi-heart-fill active' : 'bi-heart'"></i>
-                    </button>
-
-                    @if (product.stock === 0) {
-                      <span class="product-badge sold-out">Agotado</span>
-                    } @else if (product.stock < 5) {
-                      <span class="product-badge low-stock">¡Últimas unidades!</span>
-                    }
-                  </div>
-
-                  <div class="product-body">
-                    <span class="product-category">
-                      <i class="bi bi-tag-fill me-1"></i>
-                      {{ product.categoria.nombre || 'General' }}
-                    </span>
-                    <h5 class="product-name">{{ product.nombre }}</h5>
-                    <p class="product-desc">{{ product.descripcion | slice:0:80 }}...</p>
-                    <div class="product-footer">
-                      <div class="price-container">
-                        <span class="currency-symbol">S/</span>
-                        <span class="price-value">{{ product.precio | number:'1.2-2' }}</span>
-                      </div>
-                      <div class="product-actions">
-                        <a class="btn-detail" [routerLink]="['/producto', product.idProducto]">
-                          <i class="bi bi-eye"></i>
-                        </a>
-                        <button class="btn-add-cart" (click)="addToCart(product)"
-                                [disabled]="product.stock === 0">
-                          <i class="bi bi-cart-plus"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
+          <div class="mt-auto">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="price-container">
+                <span class="currency-symbol">$</span>
+                <span class="price-value">{{ product.precio | number:'1.2-2' }}</span>
               </div>
-            } @empty {
-              <div class="col-12 empty-results">
-                <i class="bi bi-search empty-icon"></i>
-                <h5>No se encontraron productos</h5>
-                <p>Intenta con otros filtros o términos de búsqueda</p>
-                <button class="btn-clear" (click)="clearFilters()">Limpiar filtros</button>
-              </div>
-            }
+            </div>
+
+            <div class="d-grid gap-2 d-flex">
+              <a class="btn btn-detail-outline w-50" [routerLink]="['/producto', product.idProducto]">
+                <i class="bi bi-eye"></i> Ver más
+              </a>
+              <button class="btn btn-primary w-50 rounded-3" (click)="addToCart(product)" [disabled]="product.stock === 0">
+                <i class="bi bi-cart-plus"></i> Añadir
+              </button>
+            </div>
           </div>
-        }
-
-        @if (viewMode === 'list') {
-          <div class="list-view animate-fadeIn delay-2">
-            @for (product of paginatedProducts; track product.idProducto) {
-              <div class="list-item">
-
-                <div class="list-image position-relative" [ngClass]="{'has-hover-img': product.imagenHover}">
-                  <ng-container *ngIf="product.imagenHover; else soloUnaImagenList">
-                    <img [src]="productService.getProductImageUrl(product.imagen)"
-                         class="main-img"
-                         [alt]="product.nombre"
-                         (error)="$event.target.src = 'assets/p1.jpg'">
-
-                    <img [src]="productService.getProductHoverImageUrl(product.imagenHover)"
-                         class="hover-img"
-                         [alt]="product.nombre + ' - Detalle'"
-                         (error)="$event.target.src = 'assets/p1.jpg'">
-                  </ng-container>
-
-                  <ng-template #soloUnaImagenList>
-                    <img [src]="productService.getProductImageUrl(product.imagen)"
-                         [alt]="product.nombre"
-                         (error)="$event.target.src = 'assets/p1.jpg'">
-                  </ng-template>
-
-                  <button class="btn-favorite-floating latched"
-                          (click)="toggleFavorite(product); $event.stopPropagation()"
-                          [disabled]="product.stock === 0"
-                          [title]="product.stock === 0 ? 'Producto agotado' : (isProductInWishlist(product.idProducto) ? 'Quitar de favoritos' : 'Agregar a favoritos')">
-                    <i class="bi" [ngClass]="isProductInWishlist(product.idProducto) ? 'bi-heart-fill active' : 'bi-heart'"></i>
-                  </button>
-                </div>
-
-                <div class="list-info">
-                  <span class="product-category">{{ product.categoria.nombre || 'General' }}</span>
-                  <h5 class="product-name">{{ product.nombre }}</h5>
-                  <p class="product-desc">{{ product.descripcion | slice:0:150 }}...</p>
-                </div>
-
-                <div class="list-actions">
-                  <div class="price-container">
-                    <span class="currency-symbol">S/</span>
-                    <span class="price-value">{{ product.precio | number:'1.2-2' }}</span>
-                  </div>
-                  <a class="btn-detail-full" [routerLink]="['/producto', product.idProducto]">
-                    <i class="bi bi-eye me-2"></i>Ver más
-                  </a>
-                  <button class="btn-add-full" (click)="addToCart(product)"
-                          [disabled]="product.stock === 0">
-                    <i class="bi bi-cart-plus me-2"></i>Añadir
-                  </button>
-                </div>
-
-              </div>
-            } @empty {
-              <div class="empty-results">
-                <i class="bi bi-search empty-icon"></i>
-                <h5>No se encontraron productos</h5>
-                <button class="btn-clear" (click)="clearFilters()">Limpiar filtros</button>
-              </div>
-            }
-          </div>
-        }
-
-        <div class="d-flex justify-content-center mt-5 animate-fadeIn" *ngIf="totalPages > 1">
-          <nav aria-label="Navegación de páginas">
-            <ul class="pagination pagination-md shadow-sm">
-              <li class="page-item" [class.disabled]="currentPage === 1">
-                <button class="page-link" (click)="goToPage(currentPage - 1)" aria-label="Previous">
-                  <span aria-hidden="true">&laquo; Anterior</span>
-                </button>
-              </li>
-              @for (page of pagesArray; track page) {
-                <li class="page-item" [class.active]="page === currentPage">
-                  <button class="page-link" (click)="goToPage(page)">{{ page }}</button>
-                </li>
-              }
-              <li class="page-item" [class.disabled]="currentPage === totalPages">
-                <button class="page-link" (click)="goToPage(currentPage + 1)" aria-label="Next">
-                  <span aria-hidden="true">Siguiente &raquo;</span>
-                </button>
-              </li>
-            </ul>
-          </nav>
         </div>
 
       </div>
     </div>
+    } @empty {
+      <div class="col-12 text-center py-5">
+        <p class="text-muted">No se encontraron productos en esta categoría.</p>
+      </div>
+    }
   </div>
 </div>

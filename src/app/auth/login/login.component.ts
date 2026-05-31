@@ -41,7 +41,7 @@ export class LoginComponent {
           toast: true,
           position: 'top-end',
           icon: 'success',
-          title: '¡Bienvenido a tiendaonline!',
+          title: '¡Bienvenido a TechShop!',
           showConfirmButton: false,
           timer: 2000
         });

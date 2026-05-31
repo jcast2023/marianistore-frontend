@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../environments/environment'; // ajusta si tu env está en otro lugar
 import { DireccionDTO } from '../models/direccion-dto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DireccionService {
-  private apiUrl = `${environment.apiUrl}/direcciones`;
+  private apiUrl = `${environment.apiUrl}/direcciones`; // ej: http://localhost:8080/api/direcciones
 
   constructor(private http: HttpClient) {}
 

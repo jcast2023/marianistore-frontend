@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "tiendaonline-frontend": {
+    "techshop-frontend": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -66,10 +66,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "tiendaonline-frontend:build:production"
+              "buildTarget": "techshop-frontend:build:production"
             },
             "development": {
-              "buildTarget": "tiendaonline-frontend:build:development"
+              "buildTarget": "techshop-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"

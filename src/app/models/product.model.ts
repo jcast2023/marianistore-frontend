@@ -12,7 +12,6 @@ export interface Producto {
   precio: number;
   stock: number;
   imagen: string;
-  imagenHover?: string;
   fechaCreacion?: string | Date;
   categoria: Categoria;
 }

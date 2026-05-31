@@ -4,12 +4,11 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NewsletterService } from '../../services/newsletter.service';
 import Swal from 'sweetalert2';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule,RouterLink],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss'
 })

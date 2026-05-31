@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
           {{ contenido }}
         </div>
         <hr class="my-4">
-        <p class="small text-secondary">tiendaonline - Información Legal 2026</p>
+        <p class="small text-secondary">TechShop - Información Legal 2026</p>
       </div>
     </div>
   `
@@ -32,7 +32,7 @@ export class InfoComponent implements OnInit {
 
       if (path === 'ayuda') {
         this.titulo = 'Centro de Ayuda';
-        this.contenido = 'Bienvenido al soporte de tiendaonline. Aquí resolvemos tus dudas técnicas.';
+        this.contenido = 'Bienvenido al soporte de TechShop. Aquí resolvemos tus dudas técnicas.';
       } else if (path === 'terminos') {
         this.titulo = 'Términos y Condiciones';
         this.contenido = 'Consulta nuestras políticas de uso, privacidad y seguridad de datos.';

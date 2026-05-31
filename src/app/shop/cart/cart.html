@@ -1,0 +1,35 @@
+<div class="container mt-5">
+  <h2>Tu Carrito de Compras</h2>
+
+  <div *ngIf="items.length === 0" class="alert alert-info">
+    El carrito está vacío. <a routerLink="/productos">Ir a la tienda</a>
+  </div>
+
+  <table *ngIf="items.length > 0" class="table">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Precio</th>
+        <th>Cantidad</th>
+        <th>Subtotal</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of items">
+        <td>{{ item.product.nombre }}</td>
+        <td>{{ item.product.precio | currency }}</td>
+        <td>
+          <input type="number" [value]="item.quantity"
+                 #qty (change)="actualizar(item.product.idProducto!, +qty.value)"
+                 style="width: 60px;">
+        </td>
+        <td>{{ (item.product.precio * item.quantity) | currency }}</td>
+        <td>
+          <button (click)="eliminar(item.product.idProducto!)" class="btn btn-danger btn-sm">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 class="text-end">Total: {{ total | currency }}</h3>
+</div>

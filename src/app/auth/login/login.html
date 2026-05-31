@@ -1,87 +1,24 @@
-<div class="auth-page">
-  <div class="auth-container">
+<div class="login-container">
+  <h2>Iniciar Sesión</h2>
 
-    <!-- Panel izquierdo — decorativo -->
-    <div class="auth-left">
-      <div class="auth-brand">
-        <span class="brand-text">Tienda</span><span class="brand-accent">Online</span>
-      </div>
-      <h2 class="auth-tagline">Tu marketplace de confianza en Perú</h2>
-      <p class="auth-desc">Los mejores productos al mejor precio con envío a todo el país.</p>
-
-      <div class="auth-features">
-        <div class="feature-item">
-          <i class="bi bi-truck"></i>
-          <span>Envío gratis en pedidos mayores a S/. 100</span>
-        </div>
-        <div class="feature-item">
-          <i class="bi bi-shield-check"></i>
-          <span>Compra 100% segura y garantizada</span>
-        </div>
-        <div class="feature-item">
-          <i class="bi bi-arrow-counterclockwise"></i>
-          <span>Devolución gratuita en 30 días</span>
-        </div>
-        <div class="feature-item">
-          <i class="bi bi-headset"></i>
-          <span>Soporte al cliente 24/7</span>
-        </div>
-      </div>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="field">
+      <label>Email</label>
+      <input type="email" formControlName="email" placeholder="ejemplo@techshop.com">
     </div>
 
-    <!-- Panel derecho — formulario -->
-    <div class="auth-right">
-      <div class="auth-form-container">
-        <div class="auth-header">
-          <h3 class="auth-title">Bienvenido de vuelta</h3>
-          <p class="auth-subtitle">Inicia sesión para continuar comprando</p>
-        </div>
-
-        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
-          <div class="form-group">
-            <label class="form-label">
-              <i class="bi bi-envelope me-2"></i>Correo electrónico
-            </label>
-            <input
-              type="email"
-              formControlName="email"
-              class="form-input"
-              placeholder="ejemplo@tiendaonline.com">
-            @if (form.get('email')?.invalid && form.get('email')?.touched) {
-              <span class="form-error">Ingresa un correo válido</span>
-            }
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">
-              <i class="bi bi-lock me-2"></i>Contraseña
-            </label>
-            <input
-              type="password"
-              formControlName="password"
-              class="form-input"
-              placeholder="Tu contraseña">
-            @if (form.get('password')?.invalid && form.get('password')?.touched) {
-              <span class="form-error">La contraseña es requerida</span>
-            }
-          </div>
-
-          <button type="submit" class="btn-auth" [disabled]="form.invalid">
-            <i class="bi bi-box-arrow-in-right me-2"></i>
-            Iniciar Sesión
-          </button>
-        </form>
-
-        <div class="auth-divider">
-          <span>¿Nuevo en TiendaOnline?</span>
-        </div>
-
-        <a routerLink="/register" class="btn-auth-secondary">
-          <i class="bi bi-person-plus me-2"></i>
-          Crear una cuenta
-        </a>
-      </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" formControlName="password">
     </div>
 
-  </div>
+    <button type="submit" [disabled]="form.invalid">Entrar</button>
+  </form>
+
+  <p class="mt-4">
+    ¿No tienes cuenta?
+    <a routerLink="/register" class="text-primary fw-bold" style="text-decoration: none;">
+      Regístrate aquí
+    </a>
+  </p>
 </div>

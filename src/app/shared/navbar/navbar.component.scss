@@ -1,0 +1,87 @@
+
+@use "sass:color";
+
+
+$nav-background: #ffffff;
+$primary-color: #007bff;
+$dark-text: #333333;
+$admin-bg: rgba(255, 193, 7, 0.1);
+$admin-text: #856404;
+
+.custom-navbar {
+  background-color: $nav-background !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 12px 0;
+  transition: all 0.3s ease;
+
+  .navbar-brand {
+    font-size: 1.5rem;
+    color: $dark-text;
+
+    .brand-tech {
+      color: $primary-color;
+    }
+  }
+
+  .nav-link {
+    color: $dark-text !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+
+    &:hover {
+      color: $primary-color !important;
+    }
+
+    &.active {
+      color: $primary-color !important;
+      font-weight: 700;
+    }
+  }
+
+
+  .btn-register {
+    background-color: $primary-color;
+    color: white;
+    border-radius: 4px;
+    padding: 8px 20px;
+    border: none;
+    font-weight: 600;
+
+    &:hover {
+
+      background-color: color.adjust($primary-color, $lightness: -10%);
+    }
+  }
+
+  .btn-logout {
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    background: transparent;
+    border-radius: 4px;
+    padding: 5px 15px;
+
+    &:hover {
+      background: #dc3545;
+      color: white;
+    }
+  }
+}
+
+
+.nav-spacer {
+  height: 70px;
+  background-color: transparent;
+}
+
+
+.admin-link {
+  background: $admin-bg;
+  border-radius: 5px;
+  color: $admin-text !important;
+  margin-right: 10px;
+
+  &:hover {
+    background: color.adjust($admin-bg, $alpha: -0.05);
+  }
+}
