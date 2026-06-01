@@ -1,145 +1,129 @@
-<app-navbar></app-navbar>
+<div class="orders-page">
+  <div class="container py-5">
 
-<div class="container my-5 pt-5">
-  <h1 class="display-5 fw-bold text-center mb-5">
-    <i class="bi bi-box-seam"></i> Mis Pedidos
-  </h1>
-
-  <!-- Loading -->
-  @if (cargando) {
-    <div class="text-center py-5">
-      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-        <span class="visually-hidden">Cargando...</span>
+    <!-- Header -->
+    <div class="orders-header animate-fadeInUp">
+      <div>
+        <h1 class="orders-title">
+          <i class="bi bi-box-seam me-3"></i>Mis Pedidos
+        </h1>
+        <p class="orders-subtitle">Historial completo de tus compras</p>
       </div>
-      <p class="mt-3 text-muted fs-5">Cargando tus pedidos...</p>
-    </div>
-  }
-
-  <!-- Sin pedidos -->
-  @else if (pedidos.length === 0) {
-    <div class="text-center py-5">
-      <i class="bi bi-inbox display-1 text-muted mb-4"></i>
-      <h3 class="text-muted mb-3">No tienes pedidos aún</h3>
-      <p class="text-muted mb-4">¡Empieza a comprar y realiza tu primer pedido!</p>
-      <a routerLink="/productos" class="btn btn-primary btn-lg px-5">
-        <i class="bi bi-shop me-2"></i> Ver productos
+      <a routerLink="/productos" class="btn-shop-more">
+        <i class="bi bi-bag me-2"></i>Seguir comprando
       </a>
     </div>
-  }
 
-  <!-- Lista de pedidos -->
-  @else {
-    <div class="row g-4">
-      @for (pedido of pedidos; track pedido.idPedido) {
-        <div class="col-lg-6 col-xl-4">
-          <div class="card shadow-sm border-0 h-100 hover-card">
-            <!-- Header con estado -->
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">
-                <i class="bi bi-receipt"></i> Pedido #{{ pedido.idPedido }}
-              </h5>
-              <span class="badge" [ngClass]="getEstadoBadgeClass(pedido.estado)">
+    <!-- Loading -->
+    @if (cargando) {
+      <div class="loading-state">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p>Cargando tus pedidos...</p>
+      </div>
+    }
+
+    <!-- Sin pedidos -->
+    @else if (pedidos.length === 0) {
+      <div class="empty-state animate-fadeInUp">
+        <i class="bi bi-inbox empty-icon"></i>
+        <h3>No tienes pedidos aún</h3>
+        <p>¡Empieza a comprar y realiza tu primer pedido!</p>
+        <a routerLink="/productos" class="btn-start-shopping">
+          <i class="bi bi-shop me-2"></i>Ver productos
+        </a>
+      </div>
+    }
+
+    <!-- Lista de pedidos -->
+    @else {
+      <div class="orders-grid animate-fadeIn delay-1">
+        @for (pedido of pedidos; track pedido.idPedido) {
+          <div class="order-card">
+
+            <!-- Header del pedido -->
+            <div class="order-card-header">
+              <div class="order-id">
+                <i class="bi bi-receipt me-2"></i>
+                Pedido #{{ pedido.idPedido }}
+              </div>
+              <span class="order-status" [ngClass]="getEstadoBadgeClass(pedido.estado)">
                 {{ pedido.estado }}
               </span>
             </div>
 
-            <div class="card-body">
-              <!-- Información básica -->
-              <div class="mb-3">
-                <p class="mb-2">
-                  <i class="bi bi-calendar3 text-primary me-2"></i>
-                  <strong>Fecha:</strong>
-                  <span class="text-muted">{{ pedido.fechaPedido | date:'dd/MM/yyyy HH:mm' }}</span>
-                </p>
-                <p class="mb-2">
-                  <i class="bi bi-cash-coin text-success me-2"></i>
-                  <strong>Total:</strong>
-                  <span class="text-success fw-bold fs-5">${{ pedido.total | number:'1.2-2' }}</span>
-                </p>
-                <p class="mb-2">
-                  <i class="bi bi-box text-info me-2"></i>
-                  <strong>Productos:</strong>
-                  <span class="badge bg-info">{{ pedido.items.length }} item(s)</span>
-                </p>
+            <div class="order-card-body">
 
-                <!-- ← AGREGAR: Método de pago -->
+              <!-- Info básica -->
+              <div class="order-info">
+                <div class="info-item">
+                  <i class="bi bi-calendar3"></i>
+                  <span>{{ pedido.fechaPedido | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <div class="info-item">
+                  <i class="bi bi-box"></i>
+                  <span>{{ pedido.items.length }} producto(s)</span>
+                </div>
                 @if (pedido.metodoPago) {
-                  <p class="mb-2">
-                    <i class="bi bi-credit-card text-primary me-2"></i>
-                    <strong>Método:</strong>
-                    <span class="badge bg-primary">{{ obtenerNombreMetodoPago(pedido.metodoPago) }}</span>
-                  </p>
+                  <div class="info-item">
+                    <i class="bi bi-credit-card"></i>
+                    <span>{{ obtenerNombreMetodoPago(pedido.metodoPago) }}</span>
+                  </div>
                 }
               </div>
 
-              <!-- Dirección de envío (preview) -->
+              <!-- Total -->
+              <div class="order-total">
+                <span class="total-label">Total pagado</span>
+                <span class="total-amount">S/ {{ pedido.total | number:'1.2-2' }}</span>
+              </div>
+
+              <!-- Dirección -->
               @if (pedido.direccionEnvio) {
-                <div class="border-top pt-3 mt-3">
-                  <h6 class="fw-bold mb-2">
-                    <i class="bi bi-geo-alt-fill text-primary me-2"></i>
-                    Dirección de envío:
-                  </h6>
-                  <p class="text-muted mb-1 small">
-                    <i class="bi bi-house-door me-1"></i>
-                    {{ pedido.direccionEnvio.calle }}
-                  </p>
-                  <p class="text-muted mb-1 small">
-                    <i class="bi bi-geo me-1"></i>
-                    {{ pedido.direccionEnvio.ciudad }}, {{ pedido.direccionEnvio.estado }}
-                  </p>
-                  <p class="text-muted mb-0 small">
-                    <i class="bi bi-globe me-1"></i>
-                    {{ pedido.direccionEnvio.pais }}
-                  </p>
+                <div class="order-address">
+                  <i class="bi bi-geo-alt-fill me-2"></i>
+                  <span>{{ pedido.direccionEnvio.calle }}, {{ pedido.direccionEnvio.ciudad }}</span>
                 </div>
               }
 
-              <!-- Preview de productos -->
-              <div class="border-top pt-3 mt-3">
-                <h6 class="fw-bold mb-2">Productos:</h6>
+              <!-- Preview productos -->
+              <div class="order-products">
                 @for (item of pedido.items.slice(0, 2); track item.idItemPedido) {
-                  <div class="d-flex align-items-center mb-2 p-2 bg-light rounded">
+                  <div class="product-preview">
                     <img [src]="productService.getProductImageUrl(item.imagen || '')"
                          [alt]="item.nombreProducto"
-                         class="rounded me-2"
-                         style="width: 50px; height: 50px; object-fit: cover;"
                          (error)="$event.target.src='assets/p1.jpg'">
-                    <div class="flex-grow-1">
-                      <p class="mb-0 fw-bold small">{{ item.nombreProducto }}</p>
-                      <small class="text-muted">
-                        {{ item.cantidad }} x ${{ item.precioUnitario | number:'1.2-2' }}
-                      </small>
+                    <div class="product-preview-info">
+                      <span class="product-preview-name">{{ item.nombreProducto }}</span>
+                      <span class="product-preview-qty">{{ item.cantidad }} x S/{{ item.precioUnitario | number:'1.2-2' }}</span>
                     </div>
                   </div>
                 }
                 @if (pedido.items.length > 2) {
-                  <small class="text-muted fst-italic">
-                    <i class="bi bi-three-dots"></i>
-                    + {{ pedido.items.length - 2 }} producto(s) más
-                  </small>
+                  <p class="more-products">
+                    <i class="bi bi-three-dots me-1"></i>
+                    +{{ pedido.items.length - 2 }} producto(s) más
+                  </p>
                 }
               </div>
             </div>
 
-            <!-- Footer con botones -->
-            <div class="card-footer bg-light border-0">
-              <div class="d-grid gap-2">
-                <button class="btn btn-primary btn-sm" (click)="verDetalles(pedido)">
-                  <i class="bi bi-eye me-2"></i> Ver detalles completos
+            <!-- Footer -->
+            <div class="order-card-footer">
+              <button class="btn-view-details" (click)="verDetalles(pedido)">
+                <i class="bi bi-eye me-2"></i>Ver detalles
+              </button>
+              <div class="order-actions">
+                <button class="btn-action" (click)="descargarFactura(pedido.idPedido!)">
+                  <i class="bi bi-download"></i>
                 </button>
-                <div class="d-flex gap-2">
-                  <button class="btn btn-outline-success btn-sm flex-fill" (click)="descargarFactura(pedido.idPedido!)">
-                    <i class="bi bi-download me-1"></i> Descargar
-                  </button>
-                  <button class="btn btn-outline-info btn-sm flex-fill" (click)="generarPDF(pedido)">
-                    <i class="bi bi-file-earmark-pdf me-1"></i> Ver PDF
-                  </button>
-                </div>
+                <button class="btn-action" (click)="generarPDF(pedido)">
+                  <i class="bi bi-file-earmark-pdf"></i>
+                </button>
               </div>
             </div>
           </div>
-        </div>
-      }
-    </div>
-  }
+        }
+      </div>
+    }
+  </div>
 </div>

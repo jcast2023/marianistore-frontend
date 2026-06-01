@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CartService, CartItem } from '../services/cart.service';
 import { ProductService } from '../services/product.service';
-import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { RouterLink, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../services/auth.service';
@@ -14,7 +13,7 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-carrito',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './carrito.component.html',
   styleUrls: ['./carrito.component.scss']
 })
@@ -35,9 +34,12 @@ export class CarritoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.cartService.cartItems$.subscribe(items => {
-      this.cartItems = items;
-      this.total = this.cartService.getTotal();
+    this.cartService.cartItems$.subscribe({
+      next: (items) => {
+        this.cartItems = items || [];
+        this.total = this.cartService.getTotal();
+      },
+      error: (err) => console.error('❌ Error en suscripción de carrito:', err)
     });
 
     this.cargarDirecciones();
@@ -51,11 +53,10 @@ export class CarritoComponent implements OnInit {
       this.direccionService.obtenerPorUsuarioId(userId).subscribe({
         next: (dirs) => {
           console.log('✅ Direcciones cargadas:', dirs);
-          this.direcciones = dirs;
+          this.direcciones = dirs || [];
 
-          // ← FIX: SIEMPRE seleccionar la primera dirección disponible
-          if (dirs.length > 0) {
-            this.direccionSeleccionadaId = dirs[0].idDireccion!;
+          if (this.direcciones.length > 0) {
+            this.direccionSeleccionadaId = this.direcciones[0].idDireccion!;
             console.log('✅ Dirección seleccionada por defecto:', this.direccionSeleccionadaId);
           } else {
             this.direccionSeleccionadaId = null;
@@ -71,12 +72,11 @@ export class CarritoComponent implements OnInit {
 
   onDireccionChange(): void {
     console.log('🔄 Dirección cambiada a:', this.direccionSeleccionadaId);
-
-    const direccion = this.direcciones.find(d => d.idDireccion === this.direccionSeleccionadaId);
+    const direccion = this.direcciones.find(d => d.idDireccion === Number(this.direccionSeleccionadaId));
     if (direccion) {
       console.log('✅ Dirección válida seleccionada:', direccion);
     } else {
-      console.warn('⚠️ Dirección no encontrada en el array');
+      console.warn('⚠️ Dirección no encontrada en el catálogo local');
     }
   }
 
@@ -92,11 +92,6 @@ export class CarritoComponent implements OnInit {
       Swal.fire('Error', 'No se pudo identificar al usuario logueado.', 'error');
       return;
     }
-
-    // ← DEBUGGING: Ver qué está pasando
-    console.log('🔍 Direcciones disponibles:', this.direcciones);
-    console.log('🔍 ID seleccionado:', this.direccionSeleccionadaId);
-    console.log('🔍 Tipo de ID:', typeof this.direccionSeleccionadaId);
 
     if (!this.direccionSeleccionadaId) {
       Swal.fire({
@@ -114,12 +109,8 @@ export class CarritoComponent implements OnInit {
       return;
     }
 
-    // ← FIX: Convertir a número para comparación estricta
     const direccionId = Number(this.direccionSeleccionadaId);
     const direccionValida = this.direcciones.find(d => d.idDireccion === direccionId);
-
-    console.log('🔍 Buscando dirección con ID:', direccionId);
-    console.log('🔍 Dirección encontrada:', direccionValida);
 
     if (!direccionValida) {
       Swal.fire({
@@ -140,9 +131,9 @@ export class CarritoComponent implements OnInit {
       estado: 'PENDIENTE',
       idDireccionEnvio: direccionId,
       items: this.cartItems.map(item => ({
-        idProducto: item.product.idProducto,
+        idProducto: item.product?.idProducto,
         cantidad: item.quantity,
-        precioUnitario: item.product.precio
+        precioUnitario: item.product?.precio || 0
       }))
     };
 
@@ -150,7 +141,7 @@ export class CarritoComponent implements OnInit {
       title: 'Confirmar pedido',
       html: `
         <div class="text-start">
-          <p><strong>Total:</strong> $${this.total.toFixed(2)}</p>
+          <p><strong>Total:</strong> S/ ${this.total.toFixed(2)}</p>
           <p><strong>Envío a:</strong></p>
           <p class="text-muted mb-0">${direccionValida.calle}</p>
           <p class="text-muted mb-0">${direccionValida.ciudad}, ${direccionValida.estado}</p>
@@ -172,7 +163,7 @@ export class CarritoComponent implements OnInit {
   private crearPedido(pedidoDTO: any): void {
     Swal.fire({
       title: 'Procesando pedido...',
-      text: 'Estamos preparando tu orden en TechShop',
+      text: 'Estamos preparando tu orden en tiendaonline',
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
@@ -208,31 +199,48 @@ export class CarritoComponent implements OnInit {
     this.router.navigate(['/direcciones']);
   }
 
-  updateQuantity(item: CartItem, change: number): void {
-    const newQty = item.quantity + change;
-    const idProd = item.product.idProducto;
-    if (idProd && newQty >= 1 && newQty <= (item.product.stock || 99)) {
-      this.cartService.updateQuantity(idProd, newQty);
+  // ✅ TIPADO BLINDADO: Acepta opcionalidad para evitar errores de compilación estricta
+  updateQuantity(idProducto: number | undefined, nuevaCantidad: number): void {
+    if (idProducto === undefined || idProducto === null || nuevaCantidad < 1) return;
+
+    const item = this.cartItems.find(i => i.product?.idProducto === idProducto);
+    if (item && item.product) {
+      const stockMaximo = item.product.stock !== undefined ? Number(item.product.stock) : 99;
+      if (nuevaCantidad > stockMaximo) {
+        Swal.fire({
+          title: 'Stock insuficiente',
+          text: `Solo quedan ${stockMaximo} unidades disponibles de "${item.product.nombre}".`,
+          icon: 'warning',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#2b4c3f'
+        });
+        return;
+      }
     }
+
+    this.cartService.updateQuantity(idProducto, nuevaCantidad);
   }
 
-  removeItem(item: CartItem): void {
-    const idProd = item.product.idProducto;
-    if (idProd) {
-      Swal.fire({
-        title: '¿Quitar producto?',
-        text: `Se eliminará ${item.product.nombre} del carrito.`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, quitar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.cartService.removeFromCart(idProd);
-        }
-      });
-    }
+  // ✅ TIPADO BLINDADO: Acepta opcionalidad
+  removeItem(idProducto: number | undefined): void {
+    if (idProducto === undefined || idProducto === null) return;
+
+    const item = this.cartItems.find(i => i.product?.idProducto === idProducto);
+    const nombreProducto = item?.product?.nombre || 'este producto';
+
+    Swal.fire({
+      title: '¿Quitar producto?',
+      text: `Se eliminará "${nombreProducto}" del carrito.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, quitar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.cartService.removeFromCart(idProducto);
+      }
+    });
   }
 }

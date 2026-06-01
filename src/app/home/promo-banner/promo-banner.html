@@ -1,0 +1,26 @@
+<div class="promo-banner-container">
+
+  <div class="promo-track">
+
+    <!-- Primera copia -->
+    <ng-container *ngFor="let promo of promos; let last = last">
+      <div class="promo-item">
+        <span class="promo-icon">{{ promo.icon }}</span>
+        <strong class="promo-title">{{ promo.title }}</strong>
+        <span class="promo-subtitle">{{ promo.subtitle }}</span>
+      </div>
+      <span class="promo-separator">✦</span>
+    </ng-container>
+
+
+    <ng-container *ngFor="let promo of promos; let last = last">
+      <div class="promo-item">
+        <span class="promo-icon">{{ promo.icon }}</span>
+        <strong class="promo-title">{{ promo.title }}</strong>
+        <span class="promo-subtitle">{{ promo.subtitle }}</span>
+      </div>
+      <span class="promo-separator">✦</span>
+    </ng-container>
+
+  </div>
+</div>

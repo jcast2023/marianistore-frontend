@@ -1,0 +1,420 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary: #2563EB;
+  --secondary: #10B981;
+  --accent: #F59E0B;
+  --bg-light: #F8FAFC;
+  --text-dark: #1F2937;
+  --text-light: #6B7280;
+  --border: #E5E7EB;
+  --success: #10B981;
+  --danger: #EF4444;
+  --warning: #F59E0B;
+
+  /* Fondo de contenedores por defecto (Modo Claro) */
+  --bg-surface: #FFFFFF;
+}
+
+/* ============================================================
+   CONFIGURACIÓN MODO OSCURO (Re-mapeo dinámico de variables)
+   ============================================================ */
+.dark-mode {
+  --bg-light: #121212;
+  --bg-surface: #1E1E1E;
+  --text-dark: #F3F4F6;
+  --text-light: #9CA3AF;
+  --border: #2D3748;
+}
+
+/* ============================================================
+   CORRECCIONES DE ACCESIBILIDAD Y CONTRASTE (Solo en .dark-mode)
+   ============================================================ */
+.dark-mode {
+  color: var(--text-dark) !important;
+}
+
+/* Forzar que los títulos y etiquetas se lean bien SOLO en modo oscuro */
+.dark-mode h1, .dark-mode h2, .dark-mode h3,
+.dark-mode h4, .dark-mode h5, .dark-mode h6,
+.dark-mode label, .dark-mode span, .dark-mode p {
+  color: var(--text-dark) !important;
+}
+
+/* Específico para el Sidebar izquierdo de Filtros */
+.dark-mode .sidebar,
+.dark-mode aside,
+.dark-mode [class*="sidebar"],
+.dark-mode [class*="filter"] {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-dark) !important;
+  border-color: var(--border) !important;
+}
+
+/* Ajuste para los textos secundarios o deshabilitados */
+.dark-mode .text-muted,
+.dark-mode .text-light {
+  color: var(--text-light) !important;
+}
+
+/* Inputs o radios nativos en los filtros */
+.dark-mode input[type="radio"] + span,
+.dark-mode input[type="radio"] + label,
+.dark-mode .form-check-label {
+  color: var(--text-dark) !important;
+}
+
+/* ============================================================
+   ESTILOS BASE DE LA APLICACIÓN
+   ============================================================ */
+body {
+
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+* {
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+}
+
+/* ============================================================
+   ANIMACIONES — Intactas y corregidas
+   ============================================================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fadeInUp { animation: fadeInUp 0.6s ease forwards; }
+.animate-fadeInLeft { animation: fadeInLeft 0.6s ease forwards; }
+.animate-fadeIn { animation: fadeIn 0.6s ease forwards; }
+
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+
+/* ============================================================
+   MODO OSCURO — COMPONENTES ESPECÍFICOS
+   ============================================================ */
+
+/* ── SOLUCIÓN LOGIN / REGISTRO (Muta la tarjeta contenedora) ── */
+.dark-mode .auth-right,
+.dark-mode .auth-card,
+.dark-mode .register-card,
+.dark-mode .login-card,
+.dark-mode .auth-container .card,
+.dark-mode form {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-dark) !important;
+  border-color: var(--border) !important;
+}
+
+.dark-mode .form-input,
+.dark-mode .form-control {
+  background: #2d2d2d !important;
+  color: var(--text-dark) !important;
+  border-color: var(--border) !important;
+}
+
+.dark-mode .form-input::placeholder,
+.dark-mode .form-control::placeholder {
+  color: #6B7280 !important;
+}
+
+.dark-mode .form-input:focus,
+.dark-mode .form-control:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
+}
+
+.dark-mode .auth-title {
+  color: var(--text-dark) !important;
+}
+
+.dark-mode .btn-auth:disabled {
+  background: #374151 !important;
+  color: #6B7280 !important;
+}
+
+/* ── Cards de productos (productos.component) ── */
+.dark-mode .product-card,
+.dark-mode .list-item,
+.dark-mode .results-bar,
+.dark-mode .filters-panel,
+.dark-mode .card {
+  background: var(--bg-surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark-mode .product-image,
+.dark-mode .product-img,
+.dark-mode .new-card-img,
+.dark-mode .mini-card-img,
+.dark-mode .list-image {
+  background: #2a2a2a !important;
+}
+
+.dark-mode .product-category {
+  background: #1e3a5f !important;
+  color: #93c5fd !important;
+}
+
+.dark-mode .product-name,
+.dark-mode .brand,
+.dark-mode .mini-brand {
+  color: var(--text-dark) !important;
+}
+
+.dark-mode .product-title,
+.dark-mode .mini-title,
+.dark-mode .new-card-title {
+  color: var(--text-light) !important;
+}
+
+.dark-mode .mini-current-price,
+.dark-mode .new-current-price {
+  color: var(--text-dark) !important;
+}
+
+.dark-mode .product-footer,
+.dark-mode .card-actions-wrapper,
+.dark-mode .new-card-actions {
+  border-color: var(--border) !important;
+  background-color: var(--bg-surface) !important;
+}
+
+.dark-mode .product-info-wrapper,
+.dark-mode .product-details {
+  background-color: var(--bg-surface) !important;
+}
+
+/* ── Barra de búsqueda y Selects ── */
+.dark-mode .search-bar-modern {
+  background: var(--bg-surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark-mode .search-input {
+  background: transparent !important;
+  color: var(--text-dark) !important;
+}
+
+.dark-mode .search-input::placeholder {
+  color: #6B7280 !important;
+}
+
+.dark-mode .filter-select {
+  background: var(--bg-surface) !important;
+  color: var(--text-dark) !important;
+  border-color: var(--border) !important;
+}
+
+.dark-mode .filter-option:hover {
+  background: #2d2d2d !important;
+}
+
+.dark-mode .filter-option.active {
+  background: #1e3a5f !important;
+  border-color: #3b82f6 !important;
+}
+
+/* ── Detalle de producto ── */
+.dark-mode .product-image-container,
+.dark-mode .product-description,
+.dark-mode .product-benefits {
+  background: var(--bg-surface) !important;
+  border-color: var(--border) !important;
+}
+
+.dark-mode .product-price-section {
+  background: linear-gradient(135deg, #1e3a5f, #1a3a2e) !important;
+}
+
+.dark-mode .qty-controls {
+  border-color: var(--border) !important;
+}
+
+.dark-mode .qty-btn {
+  background: var(--bg-surface) !important;
+  color: #93c5fd !important;
+}
+
+.dark-mode .qty-btn:hover {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.dark-mode .qty-value {
+  color: var(--text-dark) !important;
+  background: var(--bg-surface) !important;
+}
+
+.dark-mode .btn-back {
+  border-color: var(--border) !important;
+  color: var(--text-dark) !important;
+}
+
+.dark-mode .btn-back:hover {
+  border-color: var(--primary) !important;
+  color: #93c5fd !important;
+}
+
+/* ── Botones deshabilitados y wishlist ── */
+.dark-mode .btn-add-cart:disabled,
+.dark-mode .btn-add-full:disabled {
+  background: #374151 !important;
+  color: #6B7280 !important;
+}
+
+.dark-mode .btn-wishlist {
+  background-color: #2d2d2d !important;
+  color: var(--text-light) !important;
+}
+
+/* ── Badges de Stock y Entrega ── */
+.dark-mode .new-card-badges {
+  background: transparent !important;
+}
+
+.dark-mode .stock-badge.in-stock {
+  background: #064e3b !important;
+  color: #6ee7b7 !important;
+  border-color: #065f46 !important;
+}
+
+.dark-mode .delivery-badge {
+  background: #7f1d1d !important;
+  color: #fca5a5 !important;
+  border-color: #991b1b !important;
+}
+
+.dark-mode .stock-badge span,
+.dark-mode .delivery-badge span,
+.dark-mode .currency-symbol,
+.dark-mode .price-value,
+.dark-mode .amount,
+.dark-mode .product-badge.sold-out,
+.dark-mode .btn-add-cart,
+.dark-mode .btn-agregar,
+.dark-mode .price-tag,
+.dark-mode .stock-badge {
+  color: inherit !important;
+}
+
+.dark-mode .product-category span,
+.dark-mode .home-product-category span {
+  color: #93c5fd !important;
+}
+
+.dark-mode .section-header h3 {
+  color: var(--text-dark) !important;
+}
+
+/* ── Mis Pedidos modo oscuro ── */
+.dark-mode .order-card {
+  background: var(--bg-surface) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark-mode .order-total {
+  background: linear-gradient(135deg, #1e3a5f, #1a3a2e) !important;
+}
+
+.dark-mode .order-address,
+.dark-mode .product-preview {
+  background: #2d2d2d !important;
+}
+
+.dark-mode .product-preview img {
+  background: #3d3d3d !important;
+}
+
+.dark-mode .order-card-footer {
+  background: #2d2d2d !important;
+  border-color: var(--border) !important;
+}
+
+.dark-mode .btn-action {
+  background: #2d2d2d !important;
+  border-color: var(--border) !important;
+  color: var(--text-dark) !important;
+}
+
+.dark-mode .btn-action:hover {
+  background: #1e3a5f !important;
+  border-color: var(--primary) !important;
+  color: #93c5fd !important;
+}
+
+/* ── Transición global suave para evitar parpadeos bruscos ── */
+.product-card, .list-item, .filters-panel, .results-bar,
+.search-bar-modern, .product-image-container, .product-description,
+.product-benefits, .product-price-section, .qty-controls, .qty-btn,
+.filter-select, .card, form, .form-input, .form-control {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease !important;
+}
+
+/* ============================================================
+   ESTILOS PREMIUM PARA SWEETALERT2 (TOASTS)
+   ============================================================ */
+
+/* Configuración base para el popup en Modo Claro */
+.custom-toast-popup {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  padding: 16px !important;
+}
+
+.custom-toast-title {
+  color: #1a1a1a !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+/* CORREGIDO: Asegurar consistencia visual del Toast cuando esté activo el .dark-mode */
+.dark-mode .custom-toast-popup {
+  background: #1e1e1e !important;
+  border: 1px solid #2d3748 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark-mode .custom-toast-title {
+  color: #f3f4f6 !important;
+}
+
+/* Color de la barra de progreso inferior (Verde principal de MarianiStore) */
+.swal2-popup.swal2-toast .swal2-timer-progress-bar {
+  background: #2b4c3f !important;
+}

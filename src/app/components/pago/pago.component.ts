@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PaymentMethod } from '../../models/payment.model';
 import { PagoService } from '../../services/pago.service';
+import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
+
+
 
 @Component({
   selector: 'app-pago',
@@ -18,145 +21,165 @@ export class PagoComponent implements OnInit {
   idPedido!: number;
   procesando = false;
   pagoExitoso = false;
+  metodoSeleccionado = 'TARJETA_CREDITO';
+  totalPedido: number = 0;
 
-  // ← MEJORA 2: Variable para guardar método seleccionado
-  metodoSeleccionado = 'TARJETA_CREDITO'; // Cambiado de 'card' a 'TARJETA_CREDITO'
-
-  // ← MEJORA 2: Actualizar valores de los métodos para que coincidan con el backend
   metodos: PaymentMethod[] = [
     {
-      id: 'TARJETA_CREDITO', // ← Cambiado
+      id: 'TARJETA_CREDITO',
       name: 'Tarjeta de Crédito',
       icon: 'bi-credit-card',
-      description: 'Visa, Mastercard, Amex'
+      description: 'Visa, Mastercard, Amex (Mercado Pago)'
     },
     {
-      id: 'PAYPAL', // ← Cambiado
+      id: 'PAYPAL',
       name: 'PayPal',
       icon: 'bi-paypal',
       description: 'Pago rápido y seguro'
     },
     {
-      id: 'TRANSFERENCIA', // ← Cambiado
+      id: 'TRANSFERENCIA',
       name: 'Transferencia',
       icon: 'bi-bank',
       description: 'Banca por internet'
     }
   ];
 
+  private apiUrl = 'http://localhost:8080/api';
+
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
     private pagoService: PagoService,
+    private authService: AuthService,
     private router: Router
+
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.idPedido = +id;
+      this.cargarTotalPedido();
     } else {
       this.router.navigate(['/']);
     }
   }
 
-  confirmarPago() {
-    if (this.procesando) return;
-    this.procesando = true;
+  cargarTotalPedido(): void {
+    this.http.get<any>(`${this.apiUrl}/pedidos/${this.idPedido}`).subscribe({
+      next: (pedido) => {
+        this.totalPedido = pedido.total;
 
-    // ← MEJORA 1: Agregar delay de procesamiento (2 segundos)
-    Swal.fire({
-      title: 'Procesando pago...',
-      html: `
-        <div class="text-center">
-          <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;">
-            <span class="visually-hidden">Cargando...</span>
-          </div>
-          <p class="mt-3">Verificando con el banco...</p>
-          <p class="text-muted small">ID de Pedido: ${this.idPedido}</p>
-        </div>
-      `,
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      timer: 2000 // ← 2 segundos de procesamiento
-    }).then(() => {
-      // Después de 2 segundos, procesar el pago real
-      this.procesarPagoEnBackend();
+      },
+      error: (err) => {
+        console.error('Error al cargar pedido:', err);
+      }
     });
   }
 
-  // ← MEJORA 1 y 2: Nuevo método que procesa el pago con el método seleccionado
-  procesarPagoEnBackend() {
-    // ← MEJORA 2: Enviar método de pago al backend
+  confirmarPago(): void {
+    if (this.procesando) return;
+    this.procesando = true;
+
+    if (this.metodoSeleccionado === 'TARJETA_CREDITO') {
+      this.pagarConMercadoPago();
+    } else {
+      Swal.fire({
+        title: 'Procesando pago...',
+        html: '<p>Verificando transacción...</p>',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        timer: 2000
+      }).then(() => {
+        this.procesarPagoEnBackend();
+      });
+    }
+  }
+
+
+  pagarConMercadoPago(): void {
+    const usuario = this.authService.getUserData();
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
+    Swal.fire({
+      title: 'Redirigiendo a Mercado Pago...',
+      text: 'Serás llevado al checkout seguro.',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    this.http.post<any>(`${this.apiUrl}/pagos/preferencia`, {
+      pedidoId:    this.idPedido,
+      descripcion: 'Compra en MarianíStore',
+      monto:       this.totalPedido,
+      email:       usuario?.email || 'cliente@marianistore.com'
+    }, { headers }).subscribe({
+      next: (preferencia) => {
+      Swal.close();
+      this.procesando = false;
+
+      if (preferencia && preferencia.sandboxUrl) {
+        console.log('URL de Mercado Pago generada:', preferencia.sandboxUrl);
+        window.location.href = preferencia.sandboxUrl;
+      } else {
+        Swal.fire('Error', 'No se recibió la URL de redirección desde el servidor.', 'error');
+      }
+    },
+    error: (err) => {
+      this.procesando = false;
+      console.error('Error en el backend al crear la preferencia:', err);
+      Swal.fire('Error', err.error?.mensaje || 'No se pudo iniciar el pago con Mercado Pago.', 'error');
+    }
+  });
+}
+
+  procesarPagoEnBackend(): void {
     this.pagoService.pagarPedido(this.idPedido, this.metodoSeleccionado).subscribe({
       next: () => {
-        // ← MEJORA 3: Mostrar método de pago en la confirmación
-        Swal.fire({
-          title: '¡Pago Autorizado!',
-          html: `
-            <div class="text-center">
-              <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-              <p class="mt-3">Tu pedido ha sido procesado correctamente</p>
-              <p class="text-muted small">Pedido #${this.idPedido}</p>
-              <p class="text-muted small">
-                <strong>Método:</strong> ${this.obtenerNombreMetodo()}
-              </p>
-            </div>
-          `,
-          icon: 'success',
-          confirmButtonColor: '#28a745',
-          confirmButtonText: 'Ver comprobante'
-        }).then(() => {
+        Swal.fire('¡Pago Autorizado!', 'Procesado correctamente', 'success').then(() => {
           this.pagoExitoso = true;
-          this.procesando = false;
+          this.procesando  = false;
           this.router.navigate(['/mis-pedidos']);
         });
       },
       error: (err) => {
-        const mensajeError = err.error?.mensaje || 'Error al procesar el pago.';
-        console.error('Error:', mensajeError);
-
-        Swal.fire({
-          title: 'Pago Declinado',
-          text: mensajeError,
-          icon: 'error',
-          confirmButtonColor: '#dc3545'
-        });
+        Swal.fire('Pago Declinado', err.error?.mensaje || 'Error al procesar.', 'error');
         this.procesando = false;
       }
     });
   }
 
-  // ← MEJORA 3: Método para obtener nombre legible del método de pago
   obtenerNombreMetodo(): string {
-    const nombres: any = {
-      'TARJETA_CREDITO': 'Tarjeta de Crédito',
-      'PAYPAL': 'PayPal',
-      'TRANSFERENCIA': 'Transferencia Bancaria'
+    const nombres: Record<string, string> = {
+      'TARJETA_CREDITO': 'Tarjeta de Crédito (Mercado Pago)',
+      'PAYPAL':          'PayPal',
+      'TRANSFERENCIA':   'Transferencia Bancaria'
     };
     return nombres[this.metodoSeleccionado] || this.metodoSeleccionado;
   }
 
-  bajarFactura() {
+  bajarFactura(): void {
     this.pagoService.descargarFactura(this.idPedido).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
+        const a   = document.createElement('a');
+        a.href     = url;
         a.download = `factura_${this.idPedido}.pdf`;
         a.click();
         window.URL.revokeObjectURL(url);
 
         Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'success',
-          title: 'Descargando factura...',
+          toast:             true,
+          position:          'top-end',
+          icon:              'success',
+          title:             'Descargando factura...',
           showConfirmButton: false,
-          timer: 2000
+          timer:             2000
         });
       },
-      error: (err) => {
+      error: () => {
         Swal.fire('Error', 'No se pudo generar la factura en este momento.', 'error');
       }
     });

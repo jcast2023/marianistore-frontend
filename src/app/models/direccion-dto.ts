@@ -1,5 +1,5 @@
 export interface DireccionDTO {
-  idDireccion?: number;       // opcional porque al crear no lo tiene
+  idDireccion?: number;
   idUsuario?: number;
   calle: string;
   ciudad: string;

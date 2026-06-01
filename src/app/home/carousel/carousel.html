@@ -1,0 +1,36 @@
+<div class="carousel-container">
+  <div
+    class="carousel-slide"
+    *ngFor="let slide of slides; let i = index"
+    [class.active]="i === currentSlide"
+    [style.backgroundImage]="'url(' + slide.image + ')'"
+    [routerLink]="slide.ruta"
+    [queryParams]="slide.categoria ? { cat: slide.categoria } : null"
+    style="cursor: pointer;">
+
+    <div class="carousel-overlay" *ngIf="slide.title || slide.subtitle"></div>
+
+    <div class="carousel-caption" *ngIf="slide.title || slide.subtitle">
+      <div class="caption-text">
+        <h2 class="caption-title">{{ slide.title }}</h2>
+        <p class="caption-subtitle" *ngIf="slide.subtitle">{{ slide.subtitle }}</p>
+        <a class="btn-carousel-offer">
+          Ver Oferta <span class="arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="carousel-controls-container">
+    <button class="carousel-control" (click)="prevSlide()">&#10094;</button>
+    <button class="carousel-control" (click)="nextSlide()">&#10095;</button>
+  </div>
+
+  <div class="carousel-indicators">
+    <span
+      *ngFor="let slide of slides; let i = index"
+      [class.active]="i === currentSlide"
+      (click)="goToSlide(i)">
+    </span>
+  </div>
+</div>

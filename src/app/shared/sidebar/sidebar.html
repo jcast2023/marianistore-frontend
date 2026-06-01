@@ -1,0 +1,37 @@
+<aside class="sidebar-container" [class.open]="isOpen">
+  <div class="sidebar-header">
+    <h3>Filtrar Catálogo</h3>
+    <button type="button" class="close-btn" (click)="closeSidebar()">×</button>
+  </div>
+
+  <div class="sidebar-content">
+    <div class="sidebar-section" *ngIf="categories && categories.length > 0">
+      <h4 class="section-title">Busca por Categoría</h4>
+      <ul class="categories-list">
+        <li *ngFor="let cat of categories">
+          <a [routerLink]="['/productos']"
+             [queryParams]="{ cat: cat.nombre }"
+             (click)="closeSidebar()"
+             class="category-item">
+            <i [ngClass]="getIcon(cat.nombre)" class="cat-icon-vector"></i>
+            <span class="cat-name">{{ cat.nombre }}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <h4 class="section-title">Rango de Precio</h4>
+      <div class="price-ranges">
+        <div *ngFor="let range of priceRanges" class="price-option-wrapper">
+          <button type="button" (click)="filtrarPorPrecio(range.min, range.max)" class="price-btn-link">
+            <span class="radio-indicator"></span>
+            {{ range.label }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div class="sidebar-overlay" [class.active]="isOpen" (click)="closeSidebar()"></div>

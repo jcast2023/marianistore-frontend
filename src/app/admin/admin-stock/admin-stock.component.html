@@ -21,35 +21,38 @@
       <tbody>
         <tr *ngFor="let p of productos" class="text-dark">
           <td>
-  <img [src]="p.imagen ? prodService.getProductImageUrl(p.imagen) : 'assets/productos/p1.jpg'"
-       class="rounded shadow-sm"
-       width="45"
-       height="45"
-       style="object-fit: cover;"
-       onerror="this.src='assets/productos/p1.jpg'">
-</td>
+            <img [src]="p.imagen ? prodService.getProductImageUrl(p.imagen) : 'assets/productos/p1.jpg'"
+                 class="rounded shadow-sm" width="45" height="45"
+                 style="object-fit: cover;"
+                 onerror="this.src='assets/productos/p1.jpg'">
+          </td>
           <td class="fw-bold">{{ p.nombre }}</td>
           <td>
-            <span class="badge bg-info text-dark">
-              {{ getNombreCategoria(p) }}
-            </span>
+            <span class="badge bg-info text-dark">{{ getNombreCategoria(p) }}</span>
           </td>
-          <td>{{ p.precio | currency }}</td>
+          <td>S/ {{ p.precio | number:'1.2-2' }}</td>
           <td>
-  <div class="d-flex align-items-center">
-    <span class="me-2 fw-bold text-primary">{{ p.stock }}</span>
-    <span class="text-muted small">unidades</span>
-    <button class="btn btn-sm btn-link p-0 ms-2 text-decoration-none"
-            (click)="actualizarStock(p)"
-            title="Editar stock">
-      📝
-    </button>
-  </div>
-</td>
+            <div class="d-flex align-items-center">
+              <span class="me-2 fw-bold text-primary">{{ p.stock }}</span>
+              <span class="text-muted small">unidades</span>
+              <button class="btn btn-sm btn-link p-0 ms-2 text-decoration-none"
+                      (click)="actualizarStock(p)" title="Editar stock">📝</button>
+            </div>
+          </td>
           <td>
-            <button class="btn btn-sm btn-outline-danger" (click)="eliminarProducto(p.idProducto)">
-              Borrar
-            </button>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-warning"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editarModal"
+                      (click)="abrirEditar(p)"
+                      title="Editar producto">
+                ✏️ Editar
+              </button>
+              <button class="btn btn-sm btn-outline-danger"
+                      (click)="eliminarProducto(p.idProducto)">
+                🗑️ Borrar
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -77,34 +80,33 @@
           <label class="form-label fw-bold">Categoría *</label>
           <select class="form-select" [(ngModel)]="nuevoProducto.id_categoria">
             <option value="0" disabled>Seleccione una categoría</option>
-            <option value="1">Laptops</option>
-            <option value="2">Celulares</option>
-            <option value="3">Accesorios</option>
-            <option value="7">Monitores</option>
+            <option value="1">Belleza</option>
+            <option value="2">Hogar</option>
+            <option value="3">Juguetería</option>
+            <option value="4">Tecnología</option>
+            <option value="5">Papelería</option>
+            <option value="6">Moda</option>
           </select>
         </div>
         <div class="row">
-  <div class="col-6 mb-3">
-    <label class="form-label fw-bold">Precio *</label>
-    <input type="number"
-           class="form-control"
-           [(ngModel)]="nuevoProducto.precio"
-           min="0"
-           step="0.01"
-           onkeydown="return event.keyCode !== 69"> </div>
-
-  <div class="col-6 mb-3">
-    <label class="form-label fw-bold">Stock *</label>
-    <input type="number"
-           class="form-control"
-           [(ngModel)]="nuevoProducto.stock"
-           min="0"
-           step="1"
-           onkeypress="return event.charCode >= 48 && event.charCode <= 57"> </div>
-</div>
+          <div class="col-6 mb-3">
+            <label class="form-label fw-bold">Precio *</label>
+            <input type="number" class="form-control" [(ngModel)]="nuevoProducto.precio"
+                   min="0" step="0.01" onkeydown="return event.keyCode !== 69">
+          </div>
+          <div class="col-6 mb-3">
+            <label class="form-label fw-bold">Stock *</label>
+            <input type="number" class="form-control" [(ngModel)]="nuevoProducto.stock"
+                   min="0" step="1" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+          </div>
+        </div>
         <div class="mb-3">
-          <label class="form-label fw-bold">Nombre de imagen (ej: samsung.jpg)</label>
-          <input type="text" class="form-control" [(ngModel)]="nuevoProducto.imagen">
+          <label class="form-label fw-bold">Nombre de imagen principal (ej: samsung.jpg)</label>
+          <input type="text" class="form-control" [(ngModel)]="nuevoProducto.imagen" placeholder="imagen-principal.jpg">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Nombre de imagen hover (ej: samsung-back.jpg)</label>
+          <input type="text" class="form-control" [(ngModel)]="nuevoProducto.imagenHover" placeholder="imagen-hover.jpg (Opcional)">
         </div>
       </div>
       <div class="modal-footer">
@@ -112,6 +114,82 @@
         <button type="button" class="btn btn-success" (click)="guardarNuevoProducto()"
                 [disabled]="!nuevoProducto.nombre || !nuevoProducto.descripcion || nuevoProducto.id_categoria === 0">
           Guardar Producto
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">✏️ Editar Producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Nombre *</label>
+          <input type="text" class="form-control" [(ngModel)]="productoEditando.nombre">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Descripción *</label>
+          <textarea class="form-control" [(ngModel)]="productoEditando.descripcion" rows="2"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Categoría *</label>
+          <select class="form-select" [(ngModel)]="productoEditando.id_categoria">
+            <option value="0" disabled>Seleccione una categoría</option>
+            <option value="1">Belleza</option>
+            <option value="2">Hogar</option>
+            <option value="3">Juguetería</option>
+            <option value="4">Tecnología</option>
+            <option value="5">Papelería</option>
+            <option value="6">Moda</option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="col-6 mb-3">
+            <label class="form-label fw-bold">Precio *</label>
+            <input type="number" class="form-control" [(ngModel)]="productoEditando.precio"
+                   min="0" step="0.01" onkeydown="return event.keyCode !== 69">
+          </div>
+          <div class="col-6 mb-3">
+            <label class="form-label fw-bold">Stock *</label>
+            <input type="number" class="form-control" [(ngModel)]="productoEditando.stock"
+                   min="0" step="1" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Nombre de imagen principal (ej: samsung.jpg)</label>
+          <input type="text" class="form-control" [(ngModel)]="productoEditando.imagen">
+          <div class="mt-2" *ngIf="productoEditando.imagen">
+            <small class="text-muted">Vista previa principal:</small>
+            <img [src]="prodService.getProductImageUrl(productoEditando.imagen)"
+                 class="d-block mt-1 rounded shadow-sm" height="60" style="object-fit: contain;"
+                 onerror="this.style.display='none'">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Nombre de imagen hover (ej: samsung-back.jpg)</label>
+          <input type="text" class="form-control" [(ngModel)]="productoEditando.imagenHover">
+          <div class="mt-2" *ngIf="productoEditando.imagenHover">
+            <small class="text-muted">Vista previa hover:</small>
+            <img [src]="prodService.getProductHoverImageUrl(productoEditando.imagenHover)"
+                 class="d-block mt-1 rounded shadow-sm" height="60" style="object-fit: contain;"
+                 onerror="this.style.display='none'">
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal" #closeBtnEdit>Cancelar</button>
+        <button type="button" class="btn btn-warning text-dark fw-bold"
+                (click)="guardarEdicion()"
+                [disabled]="!productoEditando.nombre || !productoEditando.descripcion || productoEditando.id_categoria === 0">
+          💾 Guardar cambios
         </button>
       </div>
     </div>
