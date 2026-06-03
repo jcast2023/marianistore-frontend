@@ -12,6 +12,9 @@ export class DireccionService {
 
   constructor(private http: HttpClient) {}
 
+  // El interceptor se encarga automáticamente de las cabeceras HTTP.
+  // Tus métodos ya no necesitan pasar el objeto `{ headers: ... }`
+
   obtenerPorUsuarioId(idUsuario: number): Observable<DireccionDTO[]> {
     return this.http.get<DireccionDTO[]>(`${this.apiUrl}/usuario/${idUsuario}`);
   }

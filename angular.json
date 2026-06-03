@@ -66,10 +66,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "techshop-frontend:build:production"
+              "buildTarget": "tienda-articulos-frontend:build:production"
             },
             "development": {
-              "buildTarget": "techshop-frontend:build:development"
+              "buildTarget": "tienda-articulos-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"

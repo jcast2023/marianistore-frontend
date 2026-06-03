@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-
 export interface Categoria {
   idCategoria: number;
   nombre: string;
@@ -18,6 +17,7 @@ export interface Product {
   imagen: string;
   imagenHover?: string;
   categoria: Categoria;
+  cantidadVendida?: number; // 👈 Añadido para soportar el método getTop5Vendidos() sin romper tipos
 }
 
 @Injectable({
@@ -50,9 +50,8 @@ export class ProductService {
     return imagen.startsWith('http') ? imagen : `assets/productos/${imagen}`;
   }
 
-  // NUEVO MÉTODO AUXILIAR: Resuelve la ruta para la imagen secundaria de hover
   getProductHoverImageUrl(imagenHover: string | undefined): string | null {
-    if (!imagenHover) return null; // Si es null o undefined, no retorna ruta de asset
+    if (!imagenHover) return null;
     return imagenHover.startsWith('http') ? imagenHover : `assets/productos/${imagenHover}`;
   }
 
@@ -64,7 +63,8 @@ export class ProductService {
     return this.http.get<Product[]>(`${this.apiUrl}/top5`);
   }
 
-  getAllCategories(): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/categorias`);
+  // 🛠️ Cambiado de any[] a Categoria[] para coincidir con el mapeo del frontend
+  getAllCategories(): Observable<Categoria[]> {
+    return this.http.get<Categoria[]>(`${environment.apiUrl}/categorias`);
   }
 }

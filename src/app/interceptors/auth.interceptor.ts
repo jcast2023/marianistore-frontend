@@ -12,7 +12,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   let authReq = req;
 
-
   if (token) {
     authReq = req.clone({
       headers: req.headers.set('Authorization', `Bearer ${token}`)
@@ -21,8 +20,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (!router.url.includes('/login')) {
-
+      // ✅ EXCLUSIÓN: No dispares las alertas automáticas de 401/403 si el usuario está en login o en reclamaciones
+      if (!router.url.includes('/login') && !router.url.includes('/libro-reclamaciones')) {
 
         if (error.status === 401) {
           authService.logout();
@@ -33,8 +32,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             confirmButtonText: 'Ir al Login'
           }).then(() => router.navigate(['/login']));
         }
-
-
         else if (error.status === 403) {
           Swal.fire({
             title: 'Acceso Denegado',
@@ -43,9 +40,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             confirmButtonColor: '#dc3545',
             confirmButtonText: 'Entendido'
           });
-
         }
       }
+      // El error se sigue propagando para que el componente lo maneje de forma personalizada si lo requiere
       return throwError(() => error);
     })
   );

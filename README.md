@@ -1,4 +1,4 @@
-# 🛒 TechShop Frontend - Angular 20
+# 🛒  Frontend - Angular 20
 
 Interfaz moderna y reactiva para sistema de comercio electrónico con gestión completa de productos, pedidos, direcciones de envío, simulador de pagos y visualización de facturas PDF.
 
@@ -97,7 +97,7 @@ Interfaz moderna y reactiva para sistema de comercio electrónico con gestión c
 ---
 
 <p align="center">
-  <img src="src/assets/screenshots/dashboard.png" alt="TechShop Dashboard" width="900">
+  <img src="src/assets/screenshots/dashboard.png" alt="Dashboard" width="900">
 </p>
 
 

@@ -12,7 +12,7 @@ RUN npm run build --configuration=production
 FROM nginx:stable-alpine
 
 # Eliminamos la línea genérica y dejamos solo la ruta específica de Angular 17+
-COPY --from=build /app/dist/techshop-frontend/browser /usr/share/nginx/html
+COPY --from=build /app/dist/tienda-articulos-frontend/browser /usr/share/nginx/html
 
 # Opcional: Copiar un archivo de configuración de Nginx si tienes uno para manejar rutas
 COPY nginx.conf /etc/nginx/conf.d/default.conf
