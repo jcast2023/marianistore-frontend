@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-orders',
@@ -17,6 +18,7 @@ export class AdminOrders implements OnInit {
   pedidosFiltrados: any[] = [];
   cargando = true;
   terminoBusqueda: string = '';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -25,7 +27,7 @@ export class AdminOrders implements OnInit {
   }
 
   cargarPedidosGlobales() {
-    this.http.get<any[]>('http://localhost:8080/api/pedidos').subscribe({
+    this.http.get<any[]>(`${this.apiUrl}/pedidos`).subscribe({
       next: (data) => {
         this.pedidos = data;
         this.pedidosFiltrados = data;
@@ -53,7 +55,6 @@ export class AdminOrders implements OnInit {
   }
 
   actualizarEstado(idPedido: number, nuevoEstado: string) {
-
     Swal.fire({
       title: '¿Confirmar despacho?',
       text: `El pedido #${idPedido} se marcará como ENVIADO.`,
@@ -65,25 +66,22 @@ export class AdminOrders implements OnInit {
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-
-
         Swal.fire({
           title: 'Actualizando...',
           didOpen: () => { Swal.showLoading(); }
         });
 
-        this.http.patch(`http://localhost:8080/api/pedidos/${idPedido}/estado`, { estado: nuevoEstado })
+        this.http.patch(`${this.apiUrl}/pedidos/${idPedido}/estado`, { estado: nuevoEstado })
           .subscribe({
             next: () => {
               const pedido = this.pedidos.find(p => p.idPedido === idPedido);
               if (pedido) pedido.estado = nuevoEstado;
               this.filtrarPedidos();
-
               Swal.fire('¡Éxito!', 'El pedido ha sido despachado.', 'success');
             },
             error: (err) => {
               console.error('Error al cambiar estado:', err);
-              Swal.fire('Error de Conexión', 'No se pudo actualizar el estado. Revisa los permisos de red (CORS).', 'error');
+              Swal.fire('Error de Conexión', 'No se pudo actualizar el estado.', 'error');
             }
           });
       }
@@ -91,8 +89,7 @@ export class AdminOrders implements OnInit {
   }
 
   descargarFactura(idPedido: number) {
-    const url = `http://localhost:8080/api/pedidos/${idPedido}/factura`;
-
+    const url = `${this.apiUrl}/pedidos/${idPedido}/factura`;
 
     const toast = Swal.mixin({
       toast: true,

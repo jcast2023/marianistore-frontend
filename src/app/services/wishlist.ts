@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Product } from '../shop/product';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +13,7 @@ export class WishlistService {
   private wishlistItems = new BehaviorSubject<any[]>([]);
   wishlist$ = this.wishlistItems.asObservable();
   private storageKey = 'tiendaonline_wishlist';
-  private apiUrl = 'http://localhost:8080/api/wishlist';
-
+  private apiUrl = `${environment.apiUrl}/wishlist`;
   constructor(private http: HttpClient) {
     this.loadWishlist();
   }

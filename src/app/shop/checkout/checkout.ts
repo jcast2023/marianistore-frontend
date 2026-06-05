@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
-
+import { environment } from '../../../environments/environment';
 interface Direccion {
   idDireccion: number;
   calle: string;
@@ -42,7 +42,7 @@ export class Checkout implements OnInit {
     { valor: 'TRANSFERENCIA',   label: 'Transferencia',      icono: 'fa-building-columns' }
   ];
 
-  private apiUrl = 'http://localhost:8080/api';
+  public apiUrl = environment.apiUrl;
 
   constructor(
     private cartService: CartService,

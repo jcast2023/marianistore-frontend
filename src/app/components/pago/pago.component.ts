@@ -7,6 +7,7 @@ import { PaymentMethod } from '../../models/payment.model';
 import { PagoService } from '../../services/pago.service';
 import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
+import { environment } from '../../../environments/environment';
 
 
 
@@ -45,7 +46,7 @@ export class PagoComponent implements OnInit {
     }
   ];
 
-  private apiUrl = 'http://localhost:8080/api';
+ private apiUrl = environment.apiUrl;
 
   constructor(
     private route: ActivatedRoute,

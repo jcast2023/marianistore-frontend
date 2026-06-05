@@ -103,4 +103,4 @@ Interfaz moderna y reactiva para sistema de comercio electrónico con gestión c
 
 ## 🔗 Enlace al Backend
 Este frontend consume la API REST de:
-👉 [TechShop Backend (Spring Boot)](https://github.com/jcast2023/e-commerce)
+👉 [Marianistore Backend (Spring Boot)](https://github.com/jcast2023/marianistore-backend)

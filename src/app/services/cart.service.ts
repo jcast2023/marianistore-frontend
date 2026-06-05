@@ -3,7 +3,7 @@ import { BehaviorSubject, forkJoin, of } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map } from 'rxjs/operators';
 import { Product } from './product.service';
-
+import { environment } from '../../environments/environment';
 export interface CartItem {
   idItem?: number;
   product: Product;
@@ -21,8 +21,8 @@ export class CartService {
   cartCount$ = this.cartCount.asObservable();
 
   private storageKey  = 'tiendaonline_cart';
-  private apiUrl      = 'http://localhost:8080/api/carritos';
-  private productoUrl = 'http://localhost:8080/api/productos';
+ private apiUrl      = `${environment.apiUrl}/carritos`;
+private productoUrl = `${environment.apiUrl}/productos`;
 
   constructor(private http: HttpClient) {
     this.loadCart();
