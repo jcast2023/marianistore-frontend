@@ -9,8 +9,6 @@ import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 import { environment } from '../../../environments/environment';
 
-
-
 @Component({
   selector: 'app-pago',
   standalone: true,
@@ -46,7 +44,7 @@ export class PagoComponent implements OnInit {
     }
   ];
 
- private apiUrl = environment.apiUrl;
+  private apiUrl = environment.apiUrl;
 
   constructor(
     private route: ActivatedRoute,
@@ -54,7 +52,6 @@ export class PagoComponent implements OnInit {
     private pagoService: PagoService,
     private authService: AuthService,
     private router: Router
-
   ) {}
 
   ngOnInit(): void {
@@ -68,8 +65,12 @@ export class PagoComponent implements OnInit {
   }
 
   cargarTotalPedido(): void {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
     console.log('====== CARGANDO TOTAL DEL PEDIDO ID:', this.idPedido, '======');
-    this.http.get<any>(`${this.apiUrl}/pedidos/${this.idPedido}`).subscribe({
+
+    this.http.get<any>(`${this.apiUrl}/pedidos/${this.idPedido}`, { headers }).subscribe({
       next: (pedido) => {
         console.log('Respuesta completa del pedido recibida:', pedido);
         if (pedido && pedido.total !== undefined) {
@@ -104,7 +105,6 @@ export class PagoComponent implements OnInit {
     }
   }
 
-
   pagarConMercadoPago(): void {
     const usuario = this.authService.getUserData();
     const token = this.authService.getToken();
@@ -124,23 +124,23 @@ export class PagoComponent implements OnInit {
       email:       usuario?.email || 'cliente@marianistore.com'
     }, { headers }).subscribe({
       next: (preferencia) => {
-      Swal.close();
-      this.procesando = false;
+        Swal.close();
+        this.procesando = false;
 
-      if (preferencia && preferencia.sandboxUrl) {
-        console.log('URL de Mercado Pago generada:', preferencia.sandboxUrl);
-        window.location.href = preferencia.sandboxUrl;
-      } else {
-        Swal.fire('Error', 'No se recibió la URL de redirección desde el servidor.', 'error');
+        if (preferencia && preferencia.sandboxUrl) {
+          console.log('URL de Mercado Pago generada:', preferencia.sandboxUrl);
+          window.location.href = preferencia.sandboxUrl;
+        } else {
+          Swal.fire('Error', 'No se recibió la URL de redirección desde el servidor.', 'error');
+        }
+      },
+      error: (err) => {
+        this.procesando = false;
+        console.error('Error en el backend al crear la preferencia:', err);
+        Swal.fire('Error', err.error?.mensaje || 'No se pudo iniciar el pago con Mercado Pago.', 'error');
       }
-    },
-    error: (err) => {
-      this.procesando = false;
-      console.error('Error en el backend al crear la preferencia:', err);
-      Swal.fire('Error', err.error?.mensaje || 'No se pudo iniciar el pago con Mercado Pago.', 'error');
-    }
-  });
-}
+    });
+  }
 
   procesarPagoEnBackend(): void {
     this.pagoService.pagarPedido(this.idPedido, this.metodoSeleccionado).subscribe({
@@ -168,6 +168,7 @@ export class PagoComponent implements OnInit {
   }
 
   bajarFactura(): void {
+
     this.pagoService.descargarFactura(this.idPedido).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -186,7 +187,8 @@ export class PagoComponent implements OnInit {
           timer:             2000
         });
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al descargar factura:', err);
         Swal.fire('Error', 'No se pudo generar la factura en este momento.', 'error');
       }
     });
