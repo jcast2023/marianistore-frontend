@@ -113,34 +113,19 @@ export class Checkout implements OnInit {
   this.http.post<any>(`${this.apiUrl}/pedidos`, pedidoDTO, { headers })
     .subscribe({
       next: (pedido) => {
+        const realPedidoId = pedido.idPedido || pedido.id;
 
         if (this.metodoPago === 'TARJETA_CREDITO') {
 
-          this.http.post<any>(`${this.apiUrl}/pagos/preferencia`, {
-  pedidoId:    pedido.idPedido,
-  descripcion: 'Compra en MarianíStore',
-  monto:       pedido.total,
-  email:       usuario.email
-}, { headers }).subscribe({
-            next: (preferencia) => {
-  this.isLoading = false;
+          this.isLoading = false;
 
-  if (preferencia && preferencia.initPoint) {
-    window.location.href = preferencia.initPoint;
-  } else {
-    this.errorMsg = 'Mercado Pago no devolvió una URL de redirección válida.';
-  }
-},
-            error: (err) => {
-              this.isLoading = false;
-              console.error('Error al generar la preferencia de Mercado Pago:', err);
-              this.errorMsg = 'Error en la pasarela de pagos. Revisa la consola del navegador.';
-            }
-          });
+          // ✅ REDIRECCIÓN CORRECTA: Mandamos al usuario a TU componente de pago local
+          this.router.navigate(['/pago', realPedidoId]);
 
         } else {
+          // Flujo para otros métodos (PayPal / Transferencia)
           this.http.put<any>(
-            `${this.apiUrl}/pedidos/${pedido.idPedido}/pagar?metodoPago=${this.metodoPago}`,
+            `${this.apiUrl}/pedidos/${realPedidoId}/pagar?metodoPago=${this.metodoPago}`,
             {}, { headers }
           ).subscribe({
             next: (pedidoPagado) => {

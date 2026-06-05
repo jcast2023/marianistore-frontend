@@ -8,6 +8,7 @@ import { PagoService } from '../../services/pago.service';
 import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 import { environment } from '../../../environments/environment';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-pago',
@@ -51,7 +52,8 @@ export class PagoComponent implements OnInit {
     private http: HttpClient,
     private pagoService: PagoService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -73,8 +75,9 @@ export class PagoComponent implements OnInit {
     this.http.get<any>(`${this.apiUrl}/pedidos/${this.idPedido}`, { headers }).subscribe({
       next: (pedido) => {
         console.log('Respuesta completa del pedido recibida:', pedido);
-        if (pedido && pedido.total !== undefined) {
-          this.totalPedido = pedido.total;
+        // ✅ Validar 'total' o 'monto' para evitar que se asigne 0 de manera imprevista
+        if (pedido && (pedido.total !== undefined || pedido.monto !== undefined)) {
+          this.totalPedido = pedido.total !== undefined ? pedido.total : pedido.monto;
           console.log('Monto asignado correctamente a totalPedido:', this.totalPedido);
         } else {
           console.warn('⚠️ Ojo: El objeto pedido llegó pero no tiene la propiedad "total". Estructura:', pedido);
@@ -120,16 +123,18 @@ export class PagoComponent implements OnInit {
     this.http.post<any>(`${this.apiUrl}/pagos/preferencia`, {
       pedidoId:    this.idPedido,
       descripcion: 'Compra en MarianíStore',
-      monto:       this.totalPedido,
+      monto:       this.totalPedido, // ✅ Ahora sí tendrá el valor correcto cargado por cargarTotalPedido()
       email:       usuario?.email || 'cliente@marianistore.com'
     }, { headers }).subscribe({
       next: (preferencia) => {
         Swal.close();
         this.procesando = false;
 
-        if (preferencia && preferencia.sandboxUrl) {
-          console.log('URL de Mercado Pago generada:', preferencia.sandboxUrl);
-          window.location.href = preferencia.sandboxUrl;
+        // ✅ Aquí es donde debe vivir la redirección externa definitiva
+        const urlMercadoPago = preferencia.sandboxUrl || preferencia.initPoint;
+        if (urlMercadoPago) {
+          console.log('URL de Mercado Pago generada:', urlMercadoPago);
+          window.location.href = urlMercadoPago;
         } else {
           Swal.fire('Error', 'No se recibió la URL de redirección desde el servidor.', 'error');
         }
@@ -141,10 +146,24 @@ export class PagoComponent implements OnInit {
       }
     });
   }
-
   procesarPagoEnBackend(): void {
     this.pagoService.pagarPedido(this.idPedido, this.metodoSeleccionado).subscribe({
       next: () => {
+        // ✅ EL PAGO FUE EXITOSO: Ahora que el servicio existe, limpiamos el estado local de Angular
+        const usuario = this.authService.getUserData();
+        const token = this.authService.getToken();
+        const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
+        this.cartService.clearCart(); // ✅ Ya no dará error de propiedad inexistente
+
+        if (usuario?.idUsuario) {
+          this.http.delete(`${this.apiUrl}/carritos/usuario/${usuario.idUsuario}/vaciar`, { headers })
+            .subscribe({
+              next: () => console.log('Carrito BD vaciado tras pago exitoso'),
+              error: (err) => console.error('Error vaciando carrito en BD tras pago:', err)
+            });
+        }
+
         Swal.fire('¡Pago Autorizado!', 'Procesado correctamente', 'success').then(() => {
           this.pagoExitoso = true;
           this.procesando  = false;
