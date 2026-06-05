@@ -68,13 +68,19 @@ export class PagoComponent implements OnInit {
   }
 
   cargarTotalPedido(): void {
+    console.log('====== CARGANDO TOTAL DEL PEDIDO ID:', this.idPedido, '======');
     this.http.get<any>(`${this.apiUrl}/pedidos/${this.idPedido}`).subscribe({
       next: (pedido) => {
-        this.totalPedido = pedido.total;
-
+        console.log('Respuesta completa del pedido recibida:', pedido);
+        if (pedido && pedido.total !== undefined) {
+          this.totalPedido = pedido.total;
+          console.log('Monto asignado correctamente a totalPedido:', this.totalPedido);
+        } else {
+          console.warn('⚠️ Ojo: El objeto pedido llegó pero no tiene la propiedad "total". Estructura:', pedido);
+        }
       },
       error: (err) => {
-        console.error('Error al cargar pedido:', err);
+        console.error('❌ Error crítico al cargar el pedido desde el backend:', err);
       }
     });
   }
