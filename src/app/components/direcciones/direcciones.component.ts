@@ -5,6 +5,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { HttpClient } from '@angular/common/http';
 import { Location } from '@angular/common'; // Pasarela nativa para manejar historial
 import Swal from 'sweetalert2';
+import { environment } from '../../../environments/environment';
 
 interface Direccion {
   idDireccion?: number;
@@ -30,7 +31,7 @@ export class DireccionesComponent implements OnInit {
   idDireccionEditando: number | null = null;
   loading = false;
 
-  private apiUrl = 'http://localhost:8080/api/direcciones';
+  private apiUrl = `${environment.apiUrl}/direcciones`;
 
   constructor(
     private fb: FormBuilder,

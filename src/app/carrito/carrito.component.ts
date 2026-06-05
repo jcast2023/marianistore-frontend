@@ -9,6 +9,7 @@ import { AuthService } from '../services/auth.service';
 import { DireccionService } from '../services/direccion.service';
 import { DireccionDTO } from '../models/direccion-dto';
 import Swal from 'sweetalert2';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-carrito',
@@ -32,6 +33,8 @@ export class CarritoComponent implements OnInit {
     private authService: AuthService,
     private direccionService: DireccionService
   ) {}
+
+private apiUrl = environment.apiUrl;
 
   ngOnInit(): void {
     this.cartService.cartItems$.subscribe({
@@ -170,7 +173,7 @@ export class CarritoComponent implements OnInit {
       }
     });
 
-    this.http.post('http://localhost:8080/api/pedidos', pedidoDTO).subscribe({
+    this.http.post(`${this.apiUrl}/pedidos`, pedidoDTO).subscribe({
       next: (pedidoCreado: any) => {
         Swal.fire({
           title: '¡Pedido creado!',
