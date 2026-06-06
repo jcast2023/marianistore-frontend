@@ -13,31 +13,31 @@ import { CartService } from '../../services/cart.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
- selector:'app-pago',
- standalone:true,
- imports:[
- CommonModule,
- FormsModule,
- RouterModule
- ],
- templateUrl:'./pago.component.html',
- styleUrls:['./pago.component.css']
+selector:'app-pago',
+standalone:true,
+imports:[
+CommonModule,
+FormsModule,
+RouterModule
+],
+templateUrl:'./pago.component.html',
+styleUrls:['./pago.component.css']
 })
 export class PagoComponent implements OnInit {
 
- idPedido!:number;
+idPedido!:number;
 
- procesando=false;
+procesando=false;
 
- pagoExitoso=false;
+pagoExitoso=false;
 
- metodoSeleccionado='TARJETA_CREDITO';
+metodoSeleccionado='TARJETA_CREDITO';
 
- totalPedido=0;
+totalPedido=0;
 
- private apiUrl=environment.apiUrl;
+private apiUrl=environment.apiUrl;
 
- metodos:PaymentMethod[]=[
+metodos:PaymentMethod[]=[
 
 {
 id:'TARJETA_CREDITO',
@@ -92,80 +92,21 @@ return;
 
 this.idPedido=Number(id);
 
-console.log("ID PEDIDO:",this.idPedido);
+const total=this.route.snapshot.queryParamMap.get('total');
 
-this.cargarTotalPedido();
+console.log("TOTAL QUERY PARAM:",total);
 
-}
+if(total){
 
-/* SOLO CARGA DATOS */
-/* NO PROCESA PAGOS */
+this.totalPedido=Number(total);
 
-cargarTotalPedido():void{
-
-const token=this.authService.getToken();
-
-const headers=new HttpHeaders({
-
-Authorization:`Bearer ${token}`
-
-});
-
-this.http.get<any>(
-
-`${this.apiUrl}/pedidos/${this.idPedido}`,
-
-{headers}
-
-)
-
-.subscribe({
-
-next:(pedido)=>{
-
-console.log("PEDIDO COMPLETO:",pedido);
-
-this.totalPedido=Number(
-
-pedido.total ??
-
-pedido.monto ??
-
-pedido.totalPedido ??
-
-pedido.precioTotal ??
-
-pedido.subtotal ??
-
-0
-
-);
-
-console.log(
-
-"TOTAL OBTENIDO:",
-
-this.totalPedido
-
-);
-
-},
-
-error:(err)=>{
-
-console.error(
-
-"ERROR CONSULTANDO PEDIDO:",
-
-err
-
-);
+}else{
 
 this.totalPedido=0;
 
 }
 
-});
+console.log("TOTAL FINAL:",this.totalPedido);
 
 }
 
@@ -202,6 +143,8 @@ const headers=new HttpHeaders({
 Authorization:`Bearer ${token}`
 
 });
+
+console.log("MONTO ENVIADO A MP:",this.totalPedido);
 
 this.http.post<any>(
 
@@ -255,7 +198,9 @@ Swal.fire(
 
 },
 
-error:()=>{
+error:(err)=>{
+
+console.error(err);
 
 this.procesando=false;
 
@@ -347,25 +292,17 @@ this.idPedido
 
 const url=
 
-window.URL
+window.URL.createObjectURL(blob);
 
-.createObjectURL(blob);
-
-const a=
-
-document.createElement('a');
+const a=document.createElement('a');
 
 a.href=url;
 
-a.download=
-
-`factura_${this.idPedido}.pdf`;
+a.download=`factura_${this.idPedido}.pdf`;
 
 a.click();
 
-window.URL
-
-.revokeObjectURL(url);
+window.URL.revokeObjectURL(url);
 
 });
 
