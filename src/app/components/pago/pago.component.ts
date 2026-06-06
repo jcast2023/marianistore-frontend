@@ -148,15 +148,11 @@ this.http.post<any>(
 `${this.apiUrl}/pagos/preferencia`,
 
 {
-
-pedidoId:this.idPedido,
-
-descripcion:'Compra MarianíStore',
-
-monto:this.totalPedido,
-
-email:usuario?.email
-
+    pedidoId: this.idPedido,
+    descripcion: 'Compra MarianíStore',
+    monto: this.totalPedido,
+    email: usuario?.email,
+    nombre: usuario?.name  // ← agregar
 },
 
 {headers}
