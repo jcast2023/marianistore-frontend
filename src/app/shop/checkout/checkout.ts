@@ -120,7 +120,9 @@ export class Checkout implements OnInit {
           this.isLoading = false;
 
           // ✅ REDIRECCIÓN CORRECTA: Mandamos al usuario a TU componente de pago local
-          this.router.navigate(['/pago', realPedidoId]);
+          this.router.navigate(['/pago', realPedidoId], {
+  queryParams: { total: this.total }
+});
 
         } else {
           // Flujo para otros métodos (PayPal / Transferencia)
