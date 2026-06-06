@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,18 +8,13 @@ import { CartService, CartItem } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
 
-interface Direccion {
+interface Direccion{
 
   idDireccion:number;
-
   calle:string;
-
   ciudad:string;
-
   estado:string;
-
   pais:string;
-
   codigoPostal:string;
 
 }
@@ -66,33 +60,21 @@ export class Checkout implements OnInit{
  metodosPago=[
 
   {
-
     valor:'TARJETA_CREDITO',
-
     label:'Tarjeta de Crédito',
-
     icono:'fa-credit-card'
-
   },
 
   {
-
     valor:'PAYPAL',
-
     label:'PayPal',
-
     icono:'fa-paypal'
-
   },
 
   {
-
     valor:'TRANSFERENCIA',
-
     label:'Transferencia',
-
     icono:'fa-building-columns'
-
   }
 
  ];
@@ -102,11 +84,8 @@ export class Checkout implements OnInit{
  constructor(
 
    private cartService:CartService,
-
    private authService:AuthService,
-
    private http:HttpClient,
-
    private router:Router
 
  ){}
@@ -118,7 +97,6 @@ export class Checkout implements OnInit{
    if(this.cartItems.length===0){
 
       this.router.navigate(['/carrito']);
-
       return;
 
    }
@@ -136,7 +114,6 @@ export class Checkout implements OnInit{
    if(!usuario?.idUsuario){
 
       this.isLoadingDirecciones=false;
-
       return;
 
    }
@@ -146,12 +123,9 @@ export class Checkout implements OnInit{
    this.http.get<Direccion[]>(
 
       `${this.apiUrl}/direcciones/usuario/${usuario.idUsuario}`,
-
       {headers}
 
-   )
-
-   .subscribe({
+   ).subscribe({
 
       next:(dirs)=>{
 
@@ -192,9 +166,7 @@ export class Checkout implements OnInit{
  get direccionSeleccionada():Direccion|undefined{
 
    return this.direcciones.find(
-
       d=>d.idDireccion===this.idDireccionSeleccionada
-
    );
 
  }
@@ -202,7 +174,6 @@ export class Checkout implements OnInit{
  irPaso(paso:number):void{
 
    this.pasoActual=paso;
-
    this.errorMsg='';
 
  }
@@ -217,16 +188,7 @@ export class Checkout implements OnInit{
 
    if(!this.idDireccionSeleccionada){
 
-      this.errorMsg='Selecciona una dirección de envío';
-
-      return;
-
-   }
-
-   if(this.cartItems.length===0){
-
-      this.errorMsg='El carrito está vacío';
-
+      this.errorMsg='Selecciona una dirección';
       return;
 
    }
@@ -236,14 +198,11 @@ export class Checkout implements OnInit{
    if(!usuario?.idUsuario){
 
       this.errorMsg='Debes iniciar sesión';
-
       return;
 
    }
 
    this.isLoading=true;
-
-   this.errorMsg='';
 
    const pedidoDTO={
 
@@ -268,101 +227,78 @@ export class Checkout implements OnInit{
    this.http.post<any>(
 
       `${this.apiUrl}/pedidos`,
-
       pedidoDTO,
-
       {headers}
 
-   )
-
-   .subscribe({
+   ).subscribe({
 
       next:(pedido)=>{
 
-         const realPedidoId=pedido?.idPedido;
+         const realPedidoId=pedido.idPedido;
 
          if(!realPedidoId){
 
             this.isLoading=false;
 
-            this.errorMsg='No se pudo generar el pedido';
+            this.errorMsg='Pedido inválido';
 
             return;
+
          }
 
          if(this.metodoPago==='TARJETA_CREDITO'){
 
             this.isLoading=false;
 
-            this.router.navigate(
+            /*
+              IMPORTANTE:
+              SOLO enviamos ID.
+              NO enviamos TOTAL.
+            */
 
-               ['/pago',realPedidoId],
+            this.router.navigate([
+              '/pago',
+              realPedidoId
+            ]);
 
-               {
-
-                 queryParams:{
-
-                    total:pedido.total
-
-                 }
-
-               }
-
-            );
-
-         }else{
-
-            this.http.put<any>(
-
-               `${this.apiUrl}/pedidos/${realPedidoId}/pagar?metodoPago=${this.metodoPago}`,
-
-               {},
-
-               {headers}
-
-            )
-
-            .subscribe({
-
-               next:(pedidoPagado)=>{
-
-                   this.pedidoCreado=pedidoPagado;
-
-                   this.vaciarCarritoCompleto(
-
-                       idUsuario,
-
-                       headers
-
-                   );
-
-                   this.isLoading=false;
-
-                   this.pasoActual=3;
-
-               },
-
-               error:()=>{
-
-                   this.pedidoCreado=pedido;
-
-                   this.vaciarCarritoCompleto(
-
-                       idUsuario,
-
-                       headers
-
-                   );
-
-                   this.isLoading=false;
-
-                   this.pasoActual=3;
-
-               }
-
-            });
+            return;
 
          }
+
+         this.http.put<any>(
+
+            `${this.apiUrl}/pedidos/${realPedidoId}/pagar?metodoPago=${this.metodoPago}`,
+
+            {},
+
+            {headers}
+
+         ).subscribe({
+
+            next:(pedidoPagado)=>{
+
+               this.pedidoCreado=pedidoPagado;
+
+               this.vaciarCarritoCompleto(
+                 idUsuario,
+                 headers
+               );
+
+               this.isLoading=false;
+
+               this.pasoActual=3;
+
+            },
+
+            error:()=>{
+
+               this.isLoading=false;
+
+               this.pasoActual=3;
+
+            }
+
+         });
 
       },
 
@@ -373,12 +309,8 @@ export class Checkout implements OnInit{
          console.error(err);
 
          this.errorMsg=
-
-           err?.error?.message ||
-
-           err?.error?.error ||
-
-           'Error al crear el pedido';
+         err?.error?.message ||
+         'Error creando pedido';
 
       }
 
@@ -402,33 +334,7 @@ export class Checkout implements OnInit{
 
       {headers}
 
-   )
-
-   .subscribe({
-
-      next:()=>{
-
-         console.log(
-
-            'Carrito vaciado correctamente'
-
-         );
-
-      },
-
-      error:(err)=>{
-
-         console.error(
-
-            'Error vaciando carrito',
-
-            err
-
-         );
-
-      }
-
-   });
+   ).subscribe();
 
  }
 
@@ -446,23 +352,14 @@ export class Checkout implements OnInit{
 
  irAMisPedidos():void{
 
-   this.router.navigate(
-
-      ['/mis-pedidos']
-
-   );
+   this.router.navigate(['/mis-pedidos']);
 
  }
 
  irAlInicio():void{
 
-   this.router.navigate(
-
-      ['/']
-
-   );
+   this.router.navigate(['/']);
 
  }
 
 }
-
