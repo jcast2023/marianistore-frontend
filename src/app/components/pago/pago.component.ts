@@ -6,218 +6,478 @@ import { FormsModule } from '@angular/forms';
 import { PaymentMethod } from '../../models/payment.model';
 import { PagoService } from '../../services/pago.service';
 import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
 import Swal from 'sweetalert2';
 import { environment } from '../../../environments/environment';
-import { CartService } from '../../services/cart.service';
 
 @Component({
-  selector: 'app-pago',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './pago.component.html',
-  styleUrls: ['./pago.component.css']
+ selector: 'app-pago',
+ standalone: true,
+ imports: [
+   CommonModule,
+   FormsModule,
+   RouterModule
+ ],
+ templateUrl: './pago.component.html',
+ styleUrls: ['./pago.component.css']
 })
 export class PagoComponent implements OnInit {
-  idPedido!: number;
-  procesando = false;
-  pagoExitoso = false;
-  metodoSeleccionado = 'TARJETA_CREDITO';
-  totalPedido: number = 0;
 
-  metodos: PaymentMethod[] = [
-    {
-      id: 'TARJETA_CREDITO',
-      name: 'Tarjeta de Crédito',
-      icon: 'bi-credit-card',
-      description: 'Visa, Mastercard, Amex (Mercado Pago)'
-    },
-    {
-      id: 'PAYPAL',
-      name: 'PayPal',
-      icon: 'bi-paypal',
-      description: 'Pago rápido y seguro'
-    },
-    {
-      id: 'TRANSFERENCIA',
-      name: 'Transferencia',
-      icon: 'bi-bank',
-      description: 'Banca por internet'
-    }
-  ];
+ idPedido!: number;
 
-  private apiUrl = environment.apiUrl;
+ procesando = false;
 
-  constructor(
-    private route: ActivatedRoute,
-    private http: HttpClient,
-    private pagoService: PagoService,
-    private authService: AuthService,
-    private router: Router,
-    private cartService: CartService
-  ) {}
+ pagoExitoso = false;
+
+ metodoSeleccionado = 'TARJETA_CREDITO';
+
+ totalPedido = 0;
+
+ private apiUrl = environment.apiUrl;
+
+ metodos: PaymentMethod[] = [
+
+   {
+     id:'TARJETA_CREDITO',
+     name:'Tarjeta de Crédito',
+     icon:'bi-credit-card',
+     description:'Visa, Mastercard, Amex (Mercado Pago)'
+   },
+
+   {
+     id:'PAYPAL',
+     name:'PayPal',
+     icon:'bi-paypal',
+     description:'Pago rápido y seguro'
+   },
+
+   {
+     id:'TRANSFERENCIA',
+     name:'Transferencia',
+     icon:'bi-bank',
+     description:'Banca por internet'
+   }
+
+ ];
+
+ constructor(
+
+   private route: ActivatedRoute,
+
+   private router: Router,
+
+   private http: HttpClient,
+
+   private pagoService: PagoService,
+
+   private authService: AuthService,
+
+   private cartService: CartService
+
+ ){}
 
  ngOnInit(): void {
-  const id = this.route.snapshot.paramMap.get('id');
-  if (id) {
-    this.idPedido = +id;
-  } else {
-    this.router.navigate(['/']);
-    return;
-  }
 
-  this.route.queryParams.subscribe(params => {
-    if (params['total']) {
-      this.totalPedido = +params['total'];
-    } else {
+   const id = this.route.snapshot.paramMap.get('id');
+
+   if(!id){
+
+      this.router.navigate(['/']);
+
+      return;
+
+   }
+
+   this.idPedido = Number(id);
+
+   const totalQuery = this.route.snapshot.queryParamMap.get('total');
+
+   if(totalQuery){
+
+      this.totalPedido = Number(totalQuery);
+
+   }
+
+   if(
+      !this.totalPedido ||
+      this.totalPedido <= 0
+   ){
+
       this.cargarTotalPedido();
-    }
-  });
-}
 
-  cargarTotalPedido(): void {
-    const token = this.authService.getToken();
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+   }
 
-    console.log('====== CARGANDO TOTAL DEL PEDIDO ID:', this.idPedido, '======');
+ }
 
-    this.http.get<any>(`${this.apiUrl}/pedidos/${this.idPedido}`, { headers }).subscribe({
-      next: (pedido) => {
-        console.log('Respuesta completa del pedido recibida:', pedido);
-        // ✅ Validar 'total' o 'monto' para evitar que se asigne 0 de manera imprevista
-        if (pedido && (pedido.total !== undefined || pedido.monto !== undefined)) {
-          this.totalPedido = pedido.total !== undefined ? pedido.total : pedido.monto;
-          console.log('Monto asignado correctamente a totalPedido:', this.totalPedido);
-        } else {
-          console.warn('⚠️ Ojo: El objeto pedido llegó pero no tiene la propiedad "total". Estructura:', pedido);
-        }
+ cargarTotalPedido(): void {
+
+   const token = this.authService.getToken();
+
+   const headers = new HttpHeaders({
+
+      Authorization:`Bearer ${token}`
+
+   });
+
+   this.http.get<any>(
+      `${this.apiUrl}/pedidos/${this.idPedido}`,
+      {headers}
+   ).subscribe({
+
+      next:(pedido)=>{
+
+         this.totalPedido = Number(
+
+            pedido?.total ??
+
+            pedido?.monto ??
+
+            0
+
+         );
+
       },
-      error: (err) => {
-        console.error('❌ Error crítico al cargar el pedido desde el backend:', err);
+
+      error:(err)=>{
+
+         console.error(err);
+
+         Swal.fire(
+            'Error',
+            'No se pudo obtener información del pedido',
+            'error'
+         );
+
+         this.router.navigate(['/mis-pedidos']);
+
       }
-    });
-  }
 
-  confirmarPago(): void {
-    if (this.procesando) return;
-    this.procesando = true;
+   });
 
-    if (this.metodoSeleccionado === 'TARJETA_CREDITO') {
+ }
+
+ confirmarPago(): void {
+
+   if(this.procesando){
+
+      return;
+
+   }
+
+   this.procesando = true;
+
+   if(
+      this.metodoSeleccionado ===
+      'TARJETA_CREDITO'
+   ){
+
       this.pagarConMercadoPago();
-    } else {
+
+   }
+
+   else{
+
       Swal.fire({
-        title: 'Procesando pago...',
-        html: '<p>Verificando transacción...</p>',
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        timer: 2000
-      }).then(() => {
-        this.procesarPagoEnBackend();
+
+         title:'Procesando pago...',
+
+         html:'<p>Verificando transacción...</p>',
+
+         allowOutsideClick:false,
+
+         showConfirmButton:false,
+
+         timer:2000
+
+      })
+
+      .then(()=>{
+
+         this.procesarPagoBackend();
+
       });
-    }
-  }
 
-  pagarConMercadoPago(): void {
-    const usuario = this.authService.getUserData();
-    const token = this.authService.getToken();
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+   }
 
-    Swal.fire({
-      title: 'Redirigiendo a Mercado Pago...',
-      text: 'Serás llevado al checkout seguro.',
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading()
-    });
+ }
 
-    this.http.post<any>(`${this.apiUrl}/pagos/preferencia`, {
-      pedidoId:    this.idPedido,
-      descripcion: 'Compra en MarianíStore',
-      monto:       0,
-      email:       usuario?.email || 'cliente@marianistore.com'
-    }, { headers }).subscribe({
-      next: (preferencia) => {
-        Swal.close();
-        this.procesando = false;
+ pagarConMercadoPago(): void {
 
-        // ✅ Aquí es donde debe vivir la redirección externa definitiva
-        const urlMercadoPago = preferencia.sandboxUrl || preferencia.initPoint;
-        if (urlMercadoPago) {
-          console.log('URL de Mercado Pago generada:', urlMercadoPago);
-          window.location.href = urlMercadoPago;
-        } else {
-          Swal.fire('Error', 'No se recibió la URL de redirección desde el servidor.', 'error');
-        }
-      },
-      error: (err) => {
-        this.procesando = false;
-        console.error('Error en el backend al crear la preferencia:', err);
-        Swal.fire('Error', err.error?.mensaje || 'No se pudo iniciar el pago con Mercado Pago.', 'error');
+   if(
+      !this.totalPedido ||
+      this.totalPedido <=0
+   ){
+
+      Swal.fire(
+         'Error',
+         'Monto inválido',
+         'error'
+      );
+
+      this.procesando=false;
+
+      return;
+
+   }
+
+   const usuario = this.authService.getUserData();
+
+   const token = this.authService.getToken();
+
+   const headers = new HttpHeaders({
+
+      Authorization:`Bearer ${token}`
+
+   });
+
+   Swal.fire({
+
+      title:'Conectando con Mercado Pago',
+
+      text:'Espere un momento...',
+
+      allowOutsideClick:false,
+
+      didOpen:()=>{
+
+         Swal.showLoading();
+
       }
-    });
-  }
-  procesarPagoEnBackend(): void {
-    this.pagoService.pagarPedido(this.idPedido, this.metodoSeleccionado).subscribe({
-      next: () => {
-        // ✅ EL PAGO FUE EXITOSO: Ahora que el servicio existe, limpiamos el estado local de Angular
-        const usuario = this.authService.getUserData();
-        const token = this.authService.getToken();
-        const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-        this.cartService.clearCart(); // ✅ Ya no dará error de propiedad inexistente
+   });
 
-        if (usuario?.idUsuario) {
-          this.http.delete(`${this.apiUrl}/carritos/usuario/${usuario.idUsuario}/vaciar`, { headers })
-            .subscribe({
-              next: () => console.log('Carrito BD vaciado tras pago exitoso'),
-              error: (err) => console.error('Error vaciando carrito en BD tras pago:', err)
-            });
-        }
+   this.http.post<any>(
 
-        Swal.fire('¡Pago Autorizado!', 'Procesado correctamente', 'success').then(() => {
-          this.pagoExitoso = true;
-          this.procesando  = false;
-          this.router.navigate(['/mis-pedidos']);
-        });
+      `${this.apiUrl}/pagos/preferencia`,
+
+      {
+
+         pedidoId:this.idPedido,
+
+         descripcion:'Compra Marianí Store',
+
+         monto:this.totalPedido,
+
+         email:
+
+            usuario?.email ||
+
+            'cliente@marianistore.com'
+
       },
-      error: (err) => {
-        Swal.fire('Pago Declinado', err.error?.mensaje || 'Error al procesar.', 'error');
-        this.procesando = false;
-      }
-    });
-  }
 
-  obtenerNombreMetodo(): string {
-    const nombres: Record<string, string> = {
-      'TARJETA_CREDITO': 'Tarjeta de Crédito (Mercado Pago)',
-      'PAYPAL':          'PayPal',
-      'TRANSFERENCIA':   'Transferencia Bancaria'
-    };
-    return nombres[this.metodoSeleccionado] || this.metodoSeleccionado;
-  }
+      {headers}
 
-  bajarFactura(): void {
+   )
 
-    this.pagoService.descargarFactura(this.idPedido).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a   = document.createElement('a');
-        a.href     = url;
-        a.download = `factura_${this.idPedido}.pdf`;
-        a.click();
-        window.URL.revokeObjectURL(url);
+   .subscribe({
 
-        Swal.fire({
-          toast:             true,
-          position:          'top-end',
-          icon:              'success',
-          title:             'Descargando factura...',
-          showConfirmButton: false,
-          timer:             2000
-        });
+      next:(pref)=>{
+
+         Swal.close();
+
+         this.procesando=false;
+
+         const url =
+
+            pref?.sandboxUrl ||
+
+            pref?.initPoint;
+
+         if(url){
+
+            window.location.href=url;
+
+         }
+
+         else{
+
+            Swal.fire(
+               'Error',
+               'Mercado Pago no devolvió URL',
+               'error'
+            );
+
+         }
+
       },
-      error: (err) => {
-        console.error('Error al descargar factura:', err);
-        Swal.fire('Error', 'No se pudo generar la factura en este momento.', 'error');
+
+      error:(err)=>{
+
+         console.error(err);
+
+         this.procesando=false;
+
+         Swal.fire(
+            'Error',
+            err?.error?.mensaje ||
+            'No se pudo iniciar pago',
+            'error'
+         );
+
       }
-    });
-  }
+
+   });
+
+ }
+
+ procesarPagoBackend(): void {
+
+   this.pagoService
+
+   .pagarPedido(
+
+      this.idPedido,
+
+      this.metodoSeleccionado
+
+   )
+
+   .subscribe({
+
+      next:()=>{
+
+         this.limpiarCarrito();
+
+         Swal.fire(
+
+            'Pago Exitoso',
+
+            'Procesado correctamente',
+
+            'success'
+
+         ).then(()=>{
+
+            this.router.navigate(
+               ['/mis-pedidos']
+            );
+
+         });
+
+      },
+
+      error:(err)=>{
+
+         this.procesando=false;
+
+         Swal.fire(
+
+            'Pago rechazado',
+
+            err?.error?.mensaje ||
+
+            'Error procesando pago',
+
+            'error'
+
+         );
+
+      }
+
+   });
+
+ }
+
+ limpiarCarrito(): void {
+
+   const usuario=this.authService.getUserData();
+
+   const token=this.authService.getToken();
+
+   const headers=new HttpHeaders({
+
+      Authorization:`Bearer ${token}`
+
+   });
+
+   this.cartService.clearCart();
+
+   if(usuario?.idUsuario){
+
+      this.http.delete(
+
+         `${this.apiUrl}/carritos/usuario/${usuario.idUsuario}/vaciar`,
+
+         {headers}
+
+      )
+
+      .subscribe();
+
+   }
+
+ }
+
+ obtenerNombreMetodo(): string {
+
+   const nombres:any={
+
+      TARJETA_CREDITO:
+      'Tarjeta Crédito',
+
+      PAYPAL:
+      'PayPal',
+
+      TRANSFERENCIA:
+      'Transferencia'
+
+   };
+
+   return nombres[this.metodoSeleccionado]
+      || this.metodoSeleccionado;
+
+ }
+
+ bajarFactura(): void {
+
+   this.pagoService
+   .descargarFactura(
+      this.idPedido
+   )
+   .subscribe({
+
+      next:(blob)=>{
+
+         const url=
+            window.URL.createObjectURL(
+               blob
+            );
+
+         const a=
+            document.createElement(
+               'a'
+            );
+
+         a.href=url;
+
+         a.download=
+            `factura_${this.idPedido}.pdf`;
+
+         a.click();
+
+         window.URL.revokeObjectURL(
+            url
+         );
+
+      },
+
+      error:()=>{
+
+         Swal.fire(
+
+            'Error',
+
+            'No se pudo descargar factura',
+
+            'error'
+
+         );
+
+      }
+
+   });
+
+ }
+
 }
