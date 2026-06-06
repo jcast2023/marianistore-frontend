@@ -56,15 +56,23 @@ export class PagoComponent implements OnInit {
     private cartService: CartService
   ) {}
 
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.idPedido = +id;
-      this.cargarTotalPedido();
-    } else {
-      this.router.navigate(['/']);
-    }
+ ngOnInit(): void {
+  const id = this.route.snapshot.paramMap.get('id');
+  if (id) {
+    this.idPedido = +id;
+  } else {
+    this.router.navigate(['/']);
+    return;
   }
+
+  this.route.queryParams.subscribe(params => {
+    if (params['total']) {
+      this.totalPedido = +params['total'];
+    } else {
+      this.cargarTotalPedido();
+    }
+  });
+}
 
   cargarTotalPedido(): void {
     const token = this.authService.getToken();
