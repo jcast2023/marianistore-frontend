@@ -169,11 +169,7 @@ next:(pref)=>{
 
 this.procesando=false;
 
-const url=
-
-pref.sandboxUrl ||
-
-pref.initPoint;
+const url = pref.initPoint || pref.sandboxUrl;
 
 if(url){
 
