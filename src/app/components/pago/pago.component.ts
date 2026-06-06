@@ -123,7 +123,7 @@ export class PagoComponent implements OnInit {
     this.http.post<any>(`${this.apiUrl}/pagos/preferencia`, {
       pedidoId:    this.idPedido,
       descripcion: 'Compra en MarianíStore',
-      monto:       this.totalPedido, // ✅ Ahora sí tendrá el valor correcto cargado por cargarTotalPedido()
+      monto:       0,
       email:       usuario?.email || 'cliente@marianistore.com'
     }, { headers }).subscribe({
       next: (preferencia) => {
