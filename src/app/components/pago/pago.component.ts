@@ -92,22 +92,15 @@ return;
 
 this.idPedido=Number(id);
 
-const totalParam=this.route.snapshot.queryParamMap.get('total');
-
-if(totalParam){
-
-this.totalPedido=Number(totalParam);
-
-}else{
+console.log("ID PEDIDO:",this.idPedido);
 
 this.cargarTotalPedido();
 
 }
 
-}
-
 /* SOLO CARGA DATOS */
 /* NO PROCESA PAGOS */
+
 cargarTotalPedido():void{
 
 const token=this.authService.getToken();
@@ -124,19 +117,49 @@ this.http.get<any>(
 
 {headers}
 
-).subscribe({
+)
+
+.subscribe({
 
 next:(pedido)=>{
 
-this.totalPedido=
+console.log("PEDIDO COMPLETO:",pedido);
 
-pedido?.total ??
+this.totalPedido=Number(
 
-0;
+pedido.total ??
+
+pedido.monto ??
+
+pedido.totalPedido ??
+
+pedido.precioTotal ??
+
+pedido.subtotal ??
+
+0
+
+);
+
+console.log(
+
+"TOTAL OBTENIDO:",
+
+this.totalPedido
+
+);
 
 },
 
-error:()=>{
+error:(err)=>{
+
+console.error(
+
+"ERROR CONSULTANDO PEDIDO:",
+
+err
+
+);
 
 this.totalPedido=0;
 
