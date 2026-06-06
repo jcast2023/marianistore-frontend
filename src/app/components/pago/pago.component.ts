@@ -3,481 +3,349 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
+
 import { PaymentMethod } from '../../models/payment.model';
 import { PagoService } from '../../services/pago.service';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
-import Swal from 'sweetalert2';
+
 import { environment } from '../../../environments/environment';
 
 @Component({
- selector: 'app-pago',
- standalone: true,
- imports: [
-   CommonModule,
-   FormsModule,
-   RouterModule
+ selector:'app-pago',
+ standalone:true,
+ imports:[
+ CommonModule,
+ FormsModule,
+ RouterModule
  ],
- templateUrl: './pago.component.html',
- styleUrls: ['./pago.component.css']
+ templateUrl:'./pago.component.html',
+ styleUrls:['./pago.component.css']
 })
 export class PagoComponent implements OnInit {
 
- idPedido!: number;
+ idPedido!:number;
 
- procesando = false;
+ procesando=false;
 
- pagoExitoso = false;
+ pagoExitoso=false;
 
- metodoSeleccionado = 'TARJETA_CREDITO';
+ metodoSeleccionado='TARJETA_CREDITO';
 
- totalPedido = 0;
+ totalPedido=0;
 
- private apiUrl = environment.apiUrl;
+ private apiUrl=environment.apiUrl;
 
- metodos: PaymentMethod[] = [
+ metodos:PaymentMethod[]=[
 
-   {
-     id:'TARJETA_CREDITO',
-     name:'Tarjeta de Crédito',
-     icon:'bi-credit-card',
-     description:'Visa, Mastercard, Amex (Mercado Pago)'
-   },
+{
+id:'TARJETA_CREDITO',
+name:'Tarjeta de Crédito',
+icon:'bi-credit-card',
+description:'Visa, Mastercard'
+},
 
-   {
-     id:'PAYPAL',
-     name:'PayPal',
-     icon:'bi-paypal',
-     description:'Pago rápido y seguro'
-   },
+{
+id:'PAYPAL',
+name:'PayPal',
+icon:'bi-paypal',
+description:'Pago rápido'
+},
 
-   {
-     id:'TRANSFERENCIA',
-     name:'Transferencia',
-     icon:'bi-bank',
-     description:'Banca por internet'
-   }
+{
+id:'TRANSFERENCIA',
+name:'Transferencia',
+icon:'bi-bank',
+description:'Transferencia bancaria'
+}
 
- ];
+];
 
- constructor(
+constructor(
 
-   private route: ActivatedRoute,
+private route:ActivatedRoute,
 
-   private router: Router,
+private router:Router,
 
-   private http: HttpClient,
+private http:HttpClient,
 
-   private pagoService: PagoService,
+private pagoService:PagoService,
 
-   private authService: AuthService,
+private authService:AuthService,
 
-   private cartService: CartService
+private cartService:CartService
 
- ){}
+){}
 
- ngOnInit(): void {
+ngOnInit():void{
 
-   const id = this.route.snapshot.paramMap.get('id');
+const id=this.route.snapshot.paramMap.get('id');
 
-   if(!id){
+if(!id){
 
-      this.router.navigate(['/']);
+this.router.navigate(['/']);
 
-      return;
+return;
 
-   }
+}
 
-   this.idPedido = Number(id);
+this.idPedido=Number(id);
 
-   const totalQuery = this.route.snapshot.queryParamMap.get('total');
+const totalParam=this.route.snapshot.queryParamMap.get('total');
 
-   if(totalQuery){
+if(totalParam){
 
-      this.totalPedido = Number(totalQuery);
+this.totalPedido=Number(totalParam);
 
-   }
+}else{
 
-   if(
-      !this.totalPedido ||
-      this.totalPedido <= 0
-   ){
+this.cargarTotalPedido();
 
-      this.cargarTotalPedido();
+}
 
-   }
+}
 
- }
+/* SOLO CARGA DATOS */
+/* NO PROCESA PAGOS */
+cargarTotalPedido():void{
 
- cargarTotalPedido(): void {
+const token=this.authService.getToken();
 
-   const token = this.authService.getToken();
+const headers=new HttpHeaders({
 
-   const headers = new HttpHeaders({
+Authorization:`Bearer ${token}`
 
-      Authorization:`Bearer ${token}`
+});
 
-   });
+this.http.get<any>(
 
-   this.http.get<any>(
-      `${this.apiUrl}/pedidos/${this.idPedido}`,
-      {headers}
-   ).subscribe({
+`${this.apiUrl}/pedidos/${this.idPedido}`,
 
-      next:(pedido)=>{
+{headers}
 
-         this.totalPedido = Number(
+).subscribe({
 
-            pedido?.total ??
+next:(pedido)=>{
 
-            pedido?.monto ??
+this.totalPedido=
 
-            0
+pedido?.total ??
 
-         );
+0;
 
-      },
+},
 
-      error:(err)=>{
+error:()=>{
 
-         console.error(err);
+this.totalPedido=0;
 
-         Swal.fire(
-            'Error',
-            'No se pudo obtener información del pedido',
-            'error'
-         );
+}
 
-         this.router.navigate(['/mis-pedidos']);
+});
 
-      }
+}
 
-   });
+confirmarPago():void{
 
- }
+if(this.procesando){
 
- confirmarPago(): void {
+return;
 
-   if(this.procesando){
+}
 
-      return;
+this.procesando=true;
 
-   }
+if(this.metodoSeleccionado==='TARJETA_CREDITO'){
 
-   this.procesando = true;
+this.pagarConMercadoPago();
 
-   if(
-      this.metodoSeleccionado ===
-      'TARJETA_CREDITO'
-   ){
+}else{
 
-      this.pagarConMercadoPago();
+this.procesarPagoBackend();
 
-   }
+}
 
-   else{
+}
 
-      Swal.fire({
+pagarConMercadoPago():void{
 
-         title:'Procesando pago...',
+const usuario=this.authService.getUserData();
 
-         html:'<p>Verificando transacción...</p>',
+const token=this.authService.getToken();
 
-         allowOutsideClick:false,
+const headers=new HttpHeaders({
 
-         showConfirmButton:false,
+Authorization:`Bearer ${token}`
 
-         timer:2000
+});
 
-      })
+this.http.post<any>(
 
-      .then(()=>{
+`${this.apiUrl}/pagos/preferencia`,
 
-         this.procesarPagoBackend();
+{
 
-      });
+pedidoId:this.idPedido,
 
-   }
+descripcion:'Compra MarianíStore',
 
- }
+monto:this.totalPedido,
 
- pagarConMercadoPago(): void {
+email:usuario?.email
 
-   if(
-      !this.totalPedido ||
-      this.totalPedido <=0
-   ){
+},
 
-      Swal.fire(
-         'Error',
-         'Monto inválido',
-         'error'
-      );
+{headers}
 
-      this.procesando=false;
+)
 
-      return;
+.subscribe({
 
-   }
+next:(pref)=>{
 
-   const usuario = this.authService.getUserData();
+this.procesando=false;
 
-   const token = this.authService.getToken();
+const url=
 
-   const headers = new HttpHeaders({
+pref.sandboxUrl ||
 
-      Authorization:`Bearer ${token}`
+pref.initPoint;
 
-   });
+if(url){
 
-   Swal.fire({
+window.location.href=url;
 
-      title:'Conectando con Mercado Pago',
+}else{
 
-      text:'Espere un momento...',
+Swal.fire(
 
-      allowOutsideClick:false,
+'Error',
 
-      didOpen:()=>{
+'No llegó URL MercadoPago',
 
-         Swal.showLoading();
+'error'
 
-      }
+);
 
-   });
+}
 
-   this.http.post<any>(
+},
 
-      `${this.apiUrl}/pagos/preferencia`,
+error:()=>{
 
-      {
+this.procesando=false;
 
-         pedidoId:this.idPedido,
+Swal.fire(
 
-         descripcion:'Compra Marianí Store',
+'Error',
 
-         monto:this.totalPedido,
+'No se pudo iniciar pago',
 
-         email:
+'error'
 
-            usuario?.email ||
+);
 
-            'cliente@marianistore.com'
+}
 
-      },
+});
 
-      {headers}
+}
 
-   )
+procesarPagoBackend():void{
 
-   .subscribe({
+this.pagoService
 
-      next:(pref)=>{
+.pagarPedido(
 
-         Swal.close();
+this.idPedido,
 
-         this.procesando=false;
+this.metodoSeleccionado
 
-         const url =
+)
 
-            pref?.sandboxUrl ||
+.subscribe({
 
-            pref?.initPoint;
+next:()=>{
 
-         if(url){
+this.cartService.clearCart();
 
-            window.location.href=url;
+Swal.fire(
 
-         }
+'Pago realizado',
 
-         else{
+'Compra completada',
 
-            Swal.fire(
-               'Error',
-               'Mercado Pago no devolvió URL',
-               'error'
-            );
+'success'
 
-         }
+).then(()=>{
 
-      },
+this.router.navigate(
 
-      error:(err)=>{
+['/mis-pedidos']
 
-         console.error(err);
+);
 
-         this.procesando=false;
+});
 
-         Swal.fire(
-            'Error',
-            err?.error?.mensaje ||
-            'No se pudo iniciar pago',
-            'error'
-         );
+},
 
-      }
+error:()=>{
 
-   });
+this.procesando=false;
 
- }
+Swal.fire(
 
- procesarPagoBackend(): void {
+'Error',
 
-   this.pagoService
+'No se pudo procesar',
 
-   .pagarPedido(
+'error'
 
-      this.idPedido,
+);
 
-      this.metodoSeleccionado
+}
 
-   )
+});
 
-   .subscribe({
+}
 
-      next:()=>{
+bajarFactura():void{
 
-         this.limpiarCarrito();
+this.pagoService
 
-         Swal.fire(
+.descargarFactura(
 
-            'Pago Exitoso',
+this.idPedido
 
-            'Procesado correctamente',
+)
 
-            'success'
+.subscribe(blob=>{
 
-         ).then(()=>{
+const url=
 
-            this.router.navigate(
-               ['/mis-pedidos']
-            );
+window.URL
 
-         });
+.createObjectURL(blob);
 
-      },
+const a=
 
-      error:(err)=>{
+document.createElement('a');
 
-         this.procesando=false;
+a.href=url;
 
-         Swal.fire(
+a.download=
 
-            'Pago rechazado',
+`factura_${this.idPedido}.pdf`;
 
-            err?.error?.mensaje ||
+a.click();
 
-            'Error procesando pago',
+window.URL
 
-            'error'
+.revokeObjectURL(url);
 
-         );
+});
 
-      }
-
-   });
-
- }
-
- limpiarCarrito(): void {
-
-   const usuario=this.authService.getUserData();
-
-   const token=this.authService.getToken();
-
-   const headers=new HttpHeaders({
-
-      Authorization:`Bearer ${token}`
-
-   });
-
-   this.cartService.clearCart();
-
-   if(usuario?.idUsuario){
-
-      this.http.delete(
-
-         `${this.apiUrl}/carritos/usuario/${usuario.idUsuario}/vaciar`,
-
-         {headers}
-
-      )
-
-      .subscribe();
-
-   }
-
- }
-
- obtenerNombreMetodo(): string {
-
-   const nombres:any={
-
-      TARJETA_CREDITO:
-      'Tarjeta Crédito',
-
-      PAYPAL:
-      'PayPal',
-
-      TRANSFERENCIA:
-      'Transferencia'
-
-   };
-
-   return nombres[this.metodoSeleccionado]
-      || this.metodoSeleccionado;
-
- }
-
- bajarFactura(): void {
-
-   this.pagoService
-   .descargarFactura(
-      this.idPedido
-   )
-   .subscribe({
-
-      next:(blob)=>{
-
-         const url=
-            window.URL.createObjectURL(
-               blob
-            );
-
-         const a=
-            document.createElement(
-               'a'
-            );
-
-         a.href=url;
-
-         a.download=
-            `factura_${this.idPedido}.pdf`;
-
-         a.click();
-
-         window.URL.revokeObjectURL(
-            url
-         );
-
-      },
-
-      error:()=>{
-
-         Swal.fire(
-
-            'Error',
-
-            'No se pudo descargar factura',
-
-            'error'
-
-         );
-
-      }
-
-   });
-
- }
+}
 
 }
