@@ -250,20 +250,15 @@ export class Checkout implements OnInit{
 
             this.isLoading=false;
 
-            /*
-              IMPORTANTE:
-              SOLO enviamos ID.
-              NO enviamos TOTAL.
-            */
 
-            this.router.navigate([
-              '/pago',
-              realPedidoId
-            ]);
 
-            return;
+            this.router.navigate(
+    ['/pago', realPedidoId],
+    { queryParams: { total: this.total } }
+  );
 
-         }
+  return;
+}
 
          this.http.put<any>(
 
