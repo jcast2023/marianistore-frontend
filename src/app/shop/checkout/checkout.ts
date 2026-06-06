@@ -253,8 +253,8 @@ export class Checkout implements OnInit{
 
 
             this.router.navigate(
-    ['/pago', realPedidoId],
-    { queryParams: { total: this.total } }
+    ['/pago', realPedidoId]
+
   );
 
   return;

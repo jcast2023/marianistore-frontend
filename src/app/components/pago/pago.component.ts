@@ -90,24 +90,21 @@ return;
 
 }
 
-this.idPedido=Number(id);
+this.idPedido = Number(id);
 
-const total=this.route.snapshot.queryParamMap.get('total');
+  // Opción B: obtener total real desde el backend
+  const token = this.authService.getToken();
+  const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-console.log("TOTAL QUERY PARAM:",total);
-
-if(total){
-
-this.totalPedido=Number(total);
-
-}else{
-
-this.totalPedido=0;
-
-}
-
-console.log("TOTAL FINAL:",this.totalPedido);
-
+  this.http.get<any>(`${this.apiUrl}/pedidos/${this.idPedido}`, { headers })
+    .subscribe({
+      next: (pedido) => {
+        this.totalPedido = pedido.total ?? 0;
+      },
+      error: () => {
+        this.totalPedido = 0;
+      }
+    });
 }
 
 confirmarPago():void{
