@@ -129,12 +129,11 @@ this.procesarPagoBackend();
 
 }
 
-pagarConMercadoPago():void{
+pagarConMercadoPago(): void {
   const usuario = this.authService.getUserData();
   const token = this.authService.getToken();
   const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-  // Dividir nombre completo en nombre y apellido
   const nombreCompleto = usuario?.name || '';
   const partes = nombreCompleto.trim().split(' ');
   const nombre = partes[0] || '';
@@ -144,63 +143,34 @@ pagarConMercadoPago():void{
     `${this.apiUrl}/pagos/preferencia`,
     {
       pedidoId: this.idPedido,
-      descripcion: 'Compra MarianíStore',
+      descripcion: 'Compra MarianiStore',
       monto: this.totalPedido,
       email: usuario?.email,
       nombre: nombre,
-      apellido: apellido
+      apellido: apellido,
+      identificationType: 'DNI',           // ← Agregado
+      identificationNumber: '12345678'     // ← Agregado (cámbialo por real después)
     },
-    {headers}
+    { headers }
   )
+  .subscribe({
+    next: (pref) => {
+      this.procesando = false;
+      console.log("Respuesta de preferencia:", pref);
 
-.subscribe({
-
-next:(pref)=>{
-
-this.procesando=false;
-
-const url = pref.initPoint || pref.sandboxUrl;
-
-if(url){
-
-window.location.href=url;
-
-}else{
-
-Swal.fire(
-
-'Error',
-
-'No llegó URL MercadoPago',
-
-'error'
-
-);
-
-}
-
-},
-
-error:(err)=>{
-
-console.error(err);
-
-this.procesando=false;
-
-Swal.fire(
-
-'Error',
-
-'No se pudo iniciar pago',
-
-'error'
-
-);
-
-}
-
-});
-
+      const url = pref.initPoint || pref.sandboxUrl;
+      if (url) {
+        window.location.href = url;
+      } else {
+        Swal.fire('Error', 'No llegó URL de MercadoPago', 'error');
+      }
+    },
+    error: (err) => {
+      console.error(err);
+      this.procesando = false;
+      Swal.fire('Error', 'No se pudo iniciar el pago', 'error');
+    }
+  });
 }
 
 procesarPagoBackend():void{
