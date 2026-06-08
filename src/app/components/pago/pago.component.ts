@@ -130,34 +130,28 @@ this.procesarPagoBackend();
 }
 
 pagarConMercadoPago():void{
+  const usuario = this.authService.getUserData();
+  const token = this.authService.getToken();
+  const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
-const usuario=this.authService.getUserData();
+  // Dividir nombre completo en nombre y apellido
+  const nombreCompleto = usuario?.name || '';
+  const partes = nombreCompleto.trim().split(' ');
+  const nombre = partes[0] || '';
+  const apellido = partes.slice(1).join(' ') || '';
 
-const token=this.authService.getToken();
-
-const headers=new HttpHeaders({
-
-Authorization:`Bearer ${token}`
-
-});
-
-console.log("MONTO ENVIADO A MP:",this.totalPedido);
-
-this.http.post<any>(
-
-`${this.apiUrl}/pagos/preferencia`,
-
-{
-    pedidoId: this.idPedido,
-    descripcion: 'Compra MarianíStore',
-    monto: this.totalPedido,
-    email: usuario?.email,
-    nombre: usuario?.name  // ← agregar
-},
-
-{headers}
-
-)
+  this.http.post<any>(
+    `${this.apiUrl}/pagos/preferencia`,
+    {
+      pedidoId: this.idPedido,
+      descripcion: 'Compra MarianíStore',
+      monto: this.totalPedido,
+      email: usuario?.email,
+      nombre: nombre,
+      apellido: apellido
+    },
+    {headers}
+  )
 
 .subscribe({
 
