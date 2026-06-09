@@ -148,8 +148,8 @@ pagarConMercadoPago(): void {
       email: usuario?.email,
       nombre: nombre,
       apellido: apellido,
-      identificationType: 'DNI',           // ← Agregado
-      identificationNumber: '12345678'     // ← Agregado (cámbialo por real después)
+      identificationType: 'DNI',
+      identificationNumber: '41574663'
     },
     { headers }
   )
