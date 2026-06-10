@@ -158,7 +158,9 @@ pagarConMercadoPago(): void {
       this.procesando = false;
       console.log("Respuesta de preferencia:", pref);
 
-      const url = pref.initPoint || pref.sandboxUrl;
+      // CAMBIO AQUÍ: Priorizamos la URL de Sandbox para las pruebas de certificación
+      const url = pref.sandboxUrl || pref.initPoint;
+
       if (url) {
         window.location.href = url;
       } else {
